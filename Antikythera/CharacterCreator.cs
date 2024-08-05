@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Antikythera
 {
@@ -10,6 +11,8 @@ namespace Antikythera
     {
         public string Name { get; set; }
         public string Species { get; set; }
+
+        public bool Alive { get; set; } = true;
 
         /// <summary>
         /// Attributes
@@ -39,7 +42,7 @@ namespace Antikythera
         // PER determines Base Perception
         public int PER { get; set; } = 6;
 
-        // WIL determines ability to exert influence on people and matter, improves spell damage, mind saves
+        // WIL determines ability to exert influence on people and matter, improves spell damage, and Mind saves
         public int WIL { get; set; } = 6;
 
         // POW determines raw damage output from melee, and improves damage for martial abilities
@@ -66,6 +69,11 @@ namespace Antikythera
         // Private backing field for the Defense property
         private int _defense;
 
+        public int DamageResist
+        {
+            get { return CON / 3; }
+        }
+
         /// <summary>
         /// Gets the current defense of the character.
         /// </summary>
@@ -75,15 +83,22 @@ namespace Antikythera
             private set { _defense = value; }
         }
 
+        public Weapon EquippedWeapon { get; private set; }
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Character"/> class.
         /// </summary>
-        public Character(string name)
+        public Character()
         {
-            string Name = name;
+            EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
             UpdateHealth();
             UpdateDefense();
         }
+
+        // The character can now equip weapons to increase damage output
+        // Very rough and basic. FIX IMPLEMENTATION by integrating this into an inventory dictionary
+
 
         /// <summary>
         /// Updates the health based on the base health and CON attribute.
@@ -100,23 +115,68 @@ namespace Antikythera
         {
             Defense = _baseDefense + DEX;
         }
+
+        public void EquipWeapon(Weapon weapon)
+        {
+            // Remove from personal inventory and create in Weapon Slot
+            EquippedWeapon = weapon;
+        }
+
+        public void Attack(Character attacker, Character target)
+        {
+            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            int _swing = attacker.EquippedWeapon.RollDamage();
+            int _damage = attacker.POW + _swing - target.DamageResist;
+
+            if (_damage < 0) { _damage = 1;}
+
+            target.Health -= _damage;
+
+            if (target.Health <= 0)
+            {
+                target.Health = 0;
+                target.Alive = false;
+            }
+            
+        }
+
+        public void Attack(Character attacker, Enemy target)
+        {
+
+        }
     }
 
     // Example of a derived class
-    public class Warrior : Character
+    public class Peshmurga : Character
     {
-        public Warrior(string name) : base(name)
+        public Peshmurga() : base()
         {
-            string Name = name;
-            // Additional initialization for Warrior class
+            // Additional initialization for Peshmurga class
+            string @class = "Peshmurga";
+        }
+
+        public static void CreatePeshmurgaNPC(string name)
+        {
+            Peshmurga NPC = new Peshmurga();
+            NPC.Name = name;
+            NPC.Species = "Human";
         }
     }
 
-    public class Mage : Character
+    public class Brujadha : Character
     {
-        public Mage(string name) : base(name)
+        public Brujadha() : base()
         {
-            // Additional initialization for Mage class
+            // Additional initialization for Brujadha class
+            string @class = "Brujadha";
+        }
+
+        public static void CreateBrujadhaNPC(string name)
+        {
+            Brujadha NPC = new Brujadha();
+            NPC.Name = name;
+            NPC.Species = "Human";
         }
     }
+
 }
