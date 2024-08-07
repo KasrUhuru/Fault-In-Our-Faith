@@ -27,7 +27,7 @@ namespace Antikythera
         {
             return random.Next(MinDamage, MaxDamage + 1);
         }
-
+    }
         public class Spear : Weapon
         {
             public Spear()
@@ -71,7 +71,6 @@ namespace Antikythera
                 int MaxDamage = 2;
             }
         }
-    }
 
     public class  Armor: Item
     {

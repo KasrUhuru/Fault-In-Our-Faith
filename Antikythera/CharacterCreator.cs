@@ -14,6 +14,8 @@ namespace Antikythera
 
         public bool Alive { get; set; } = true;
 
+        public Room CurrentRoom { get; set; }
+
         /// <summary>
         /// Attributes
         /// </summary>

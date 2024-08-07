@@ -363,7 +363,7 @@ class Program
         // Instantiate the current room: The Clay Pits
         // The player can LOOK and EXAMINE things
 
-
+        player.CurrentRoom = clayPits;
 
         // Create the actual game environment
         Console.WriteLine("It takes you a few moments to finish purging the mud from your belly.");
