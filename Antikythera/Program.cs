@@ -278,10 +278,6 @@ class Program
         Console.ReadLine();
         Console.WriteLine("We are all connected. All living things have sway on others.");
         Console.WriteLine();
-        Console.WriteLine("The impulse of life is present in all things that grow. It pulses in hearts and roots alike.");
-        Console.ReadLine();
-        Console.WriteLine("The beauty of entropy is present in the living and nonliving.");
-        Console.WriteLine();
         Console.WriteLine("We were formed in the discordant harmony of the universe.");
         Console.ReadLine();
         Console.Clear();
