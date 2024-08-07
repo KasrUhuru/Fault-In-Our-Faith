@@ -66,6 +66,8 @@ class Program
         if (boon == "ogre") { player.CON += 3; nemesis1.WIL += 3; nemesis2.POW += 3; }
         if (boon == "antlion") { player.POW += 3; nemesis1.CON += 3; nemesis2.WIL += 3; }
         else { player.WIL += 3; nemesis1.POW += 3; nemesis2.CON += 3; }
+
+        InitializeGame();
     }
 
     static void StoryStart()
@@ -140,7 +142,7 @@ class Program
 
         Console.Clear();
 
-        string transform;
+        
         switch (command)
         {
             case "human":
@@ -206,11 +208,52 @@ class Program
                 player.CON += 3;
                 nemesis1.WIL += 3;
                 nemesis2.POW += 3;
-                Console.WriteLine("Your skin thickens... your heartbeat is louder. A guttural roar sings through your soul.");
+                Console.WriteLine("Your skin thickens... your heartbeat is louder. You are indomitable.");
                 break;
         }
 
+        Console.WriteLine();
+        Console.WriteLine("You must make a final choice. Do you defend yourself with brawn or arcana?");
+        Console.WriteLine();
+        Console.WriteLine("One who manipulates reality with their force of will and incantation is known as a BRUJADHA.");
+        Console.WriteLine("If there were such a thing as fate, the brujadha would cut through it like water.");
+        Console.WriteLine("Magic is the foundation of their combat style.");
+        Console.WriteLine();
+        Console.WriteLine("The FANNAAN is peerless in a duel. Their grasp of martial tactics and visceral grit makes them deadly.");
+        Console.WriteLine("When the worst weapons are wrought upon the world, the fannaan survives to recount how it happened.");
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine("Are you versed in the ways of the BRUJADHA or the FANNAAN? Choosing one does not preclude you from the");
+        Console.WriteLine("tools of the other. But you must specialize in one.");
         Console.WriteLine("");
+
+        command = Console.ReadLine().ToLower();
+
+        while (command != "brujadha" && command != "fannaan")
+        {
+            Console.WriteLine("'You must pick one or the other.'");
+            command = Console.ReadLine().ToLower();
+        }
+
+        // Depending on which combat class the player takes, the nemeses will adopt their own
+        if (command == "brujadha")
+        {
+            Console.WriteLine("The fabric of the universe feels pliable under your fingertips.");
+            Console.WriteLine();
+            Brujadha player = new Brujadha(Program.player);
+            Brujadha nemesis1 = new Brujadha(Program.nemesis1);
+            Fannaan nemesis2 = new Fannaan(Program.nemesis2);
+        }
+
+        if (command == "fannaan")
+        {
+            Console.WriteLine("");
+            Console.WriteLine();
+            Fannaan player = new Fannaan(Program.player);
+            Fannaan nemesis1 = new Fannaan(Program.nemesis1);
+            Brujadha nemesis2 = new Brujadha(Program.nemesis2);
+        }
+
         Console.WriteLine("As this happens, your face splits open at last. You scream.");
         Console.ReadLine();
         Console.Clear();
@@ -218,7 +261,10 @@ class Program
         Console.WriteLine("");
         Console.WriteLine("");
         Console.WriteLine("At last... you can scream.");
+        Console.ReadLine();
+        Console.Clear();
 
+        InitializeGame();
     }
 
     static void Intro()
@@ -247,7 +293,7 @@ class Program
         Console.Clear();
         Console.WriteLine("Centuries ago, a consort of kings, empresses, and magicians turned their backs on this balance.");
         Console.WriteLine();
-        Thread.Sleep(3000);
+        Thread.Sleep(2000);
         Console.WriteLine("They refused to decay.");
         Console.ReadLine();
         Console.WriteLine("They had vision. Unity. Influence.");
@@ -314,6 +360,20 @@ class Program
 
         // Initialize character creation
         StoryStart();
+    }
+
+    static void InitializeGame()
+    {
+        // Instantiate the current room: The Clay Pits
+        // The player can LOOK and EXAMINE things
+
+
+
+        // Create the actual game environment
+        Console.WriteLine("It takes you a few moments to finish purging the mud from your belly.");
+        Console.WriteLine();
+        Console.WriteLine("Coughing, retching, shivering, you shakily get to your feet.");
+        Console.WriteLine("");
     }
 }
 

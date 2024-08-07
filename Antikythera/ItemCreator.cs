@@ -33,7 +33,7 @@ namespace Antikythera
             public Spear()
             {
                 string Name = "spear";
-                string DamageType = "Pierce";
+                string DamageType = "pierce";
                 int MinDamage = 2;
                 int MaxDamage = 4;
             }
@@ -44,7 +44,7 @@ namespace Antikythera
             public Hammer()
             {
                 string Name = "hammer";
-                string DamageType = "Blunt";
+                string DamageType = "blunt";
                 int MinDamage = 1;
                 int MaxDamage = 3;
             }
@@ -55,7 +55,7 @@ namespace Antikythera
             public Sickle()
             {
                 string Name = "sickle";
-                string DamageType = "Cut";
+                string DamageType = "cut";
                 int MinDamage = 1;
                 int MaxDamage = 4;
             }
@@ -66,7 +66,7 @@ namespace Antikythera
             public Unarmed()
             {
                 string Name = "fists";
-                string DamageType = "Blunt";
+                string DamageType = "blunt";
                 int MinDamage = 1;
                 int MaxDamage = 2;
             }

@@ -60,7 +60,7 @@ namespace Antikythera
         public int Health
         {
             get { return _health; }
-            private set { _health = value; }
+            set { _health = value; }
         }
 
         // Set base defense
@@ -80,10 +80,10 @@ namespace Antikythera
         public int Defense
         {
             get { return _defense; }
-            private set { _defense = value; }
+            set { _defense = value; }
         }
 
-        public Weapon EquippedWeapon { get; private set; }
+        public Weapon EquippedWeapon { get; set; }
 
 
         /// <summary>
@@ -147,22 +147,42 @@ namespace Antikythera
 
         public void Attack(Character attacker, Enemy target)
         {
+            int _swing = attacker.EquippedWeapon.RollDamage();
+            int _damage = attacker.POW + _swing - target.DamageResist;
 
+            if (_damage < 0) { _damage = 1; }
+
+            target.Health -= _damage;
+
+            if (target.Health <= 0)
+            {
+                target.Health = 0;
+                target.Alive = false;
+            }
         }
     }
 
     // Example of a derived class
-    public class Peshmurga : Character
+    public class Fannaan : Character
     {
-        public Peshmurga() : base()
+        public Fannaan() : base()
         {
-            // Additional initialization for Peshmurga class
-            string @class = "Peshmurga";
+            // Additional initialization for Fannaan class
+            string @class = "Fannaan";
         }
 
-        public static void CreatePeshmurgaNPC(string name)
+        public Fannaan(Character target)
         {
-            Peshmurga NPC = new Peshmurga();
+            Name = target.Name;
+            Species = target.Species;
+            CON = target.CON;
+            WIL = target.WIL;
+            POW = target.POW;
+        }
+
+        public static void CreateFannaanNPC(string name)
+        {
+            Fannaan NPC = new Fannaan();
             NPC.Name = name;
             NPC.Species = "Human";
         }
@@ -175,6 +195,16 @@ namespace Antikythera
             // Additional initialization for Brujadha class
             string @class = "Brujadha";
         }
+
+        public Brujadha(Character target)
+        {
+            Name = target.Name;
+            Species = target.Species;
+            CON = target.CON;
+            WIL = target.WIL;
+            POW = target.POW;
+        }
+
 
         public static void CreateBrujadhaNPC(string name)
         {
