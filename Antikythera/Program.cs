@@ -14,7 +14,8 @@ namespace Antikythera;
 class Program
 {
     public static Character player = new Character();
-    public static Character nemesis = new Character(); // Placeholder to be used later in the demo
+    public static Character nemesis1 = new Character(); // Placeholder to be used later in the demo
+    public static Character nemesis2 = new Character(); // These 2 nemeses will make the choices that the player doesn't
 
     static void Main(string[] args)
     {
@@ -23,8 +24,10 @@ class Program
         Console.WriteLine("This is a BARE BONES DEMO of what the true game will be. For now, I present to you the basic concepts.");
         Console.WriteLine();
         Console.WriteLine("Do you want to read the intro? You can type YES or NO.");
+        Console.WriteLine();
         Console.WriteLine("YES, I want to learn a little bit about this world.");
-        Console.WriteLine("NO, I've already seen it and want to get to the game.");
+        Console.WriteLine();
+        Console.WriteLine("NO, I've already seen it and I want to create my character.");
 
         string command = Console.ReadLine().ToLower();
         while (command != "no" && command != "yes" && command != "fast")
@@ -33,61 +36,109 @@ class Program
             command = Console.ReadLine().ToLower();
         }
 
+        Console.Clear();
+
         if (command == "no") { StoryStart(); }
         if (command == "yes") { Intro(); }
         if (command == "fast") { FastStart(); }
 
-
+        
+        
     }
 
     static void FastStart()
     {
+        // The nemesis characters become what the player doesn't
+
         Console.Write("Name: ");
         player.Name = Console.ReadLine();
+        nemesis1.Name = $"Ur'{player.Name}";
+        nemesis2.Name = $"Da-{player.Name}";
+
         Console.Write("Species: ");
-        player.Species = Console.ReadLine();
+        player.Species = Console.ReadLine().ToLower();
+        if (player.Species == "human") { player.Species = "Human"; nemesis1.Species = "Dwarf"; nemesis2.Species = "Peshmurga"; }
+        if (player.Species == "peshmurga") { player.Species = "Peshmurga"; nemesis1.Species = "Human"; nemesis2.Species = "Dwarf"; }
+        if (player.Species == "dwarf") { player.Species = "Dwarf"; nemesis1.Species = "Peshmurga"; nemesis2.Species = "Dwarf"; }
+
         Console.Write("Boon: ");
         string boon = Console.ReadLine().ToLower();
-        if (boon == "ogre") { player.CON += 3; }
-        else if (boon == "antlion") { player.POW += 3; }
-        else { player.WIL += 3; }
+        if (boon == "ogre") { player.CON += 3; nemesis1.WIL += 3; nemesis2.POW += 3; }
+        if (boon == "antlion") { player.POW += 3; nemesis1.CON += 3; nemesis2.WIL += 3; }
+        else { player.WIL += 3; nemesis1.POW += 3; nemesis2.CON += 3; }
     }
 
     static void StoryStart()
     {
-        Console.WriteLine("A soft, powerful voice echoes into your consciousness...");
-        Console.WriteLine("'Arise from the clay, my Champion. I will it.'");
-        Thread.Sleep(1000);
+        Console.WriteLine("It's dark... peaceful. A distant rumble can be heard in the back of your mind.");
         Console.WriteLine();
-        Console.WriteLine("'I have done the work of carving your form. Now... you form yourself.'");
-        Console.Write("'Focus now. What is your name?' ");
+        Console.WriteLine("A soft, powerful voice echoes into your consciousness...");
+        Console.WriteLine();
+        Console.WriteLine("'Arise from the clay, my child. I will it.'");
+        Thread.Sleep(2000);
+        Console.WriteLine();
+        Console.WriteLine("'I have done the work of carving your form. Now... you must form yourself.'");
+        Console.WriteLine();
+        Console.WriteLine("'Focus now. What is your name?' ");
+        Console.WriteLine();
+        Console.Write("You are... ");
         player.Name = Console.ReadLine();
 
-        while (player.Name == null)
+        while (player.Name == "")
         {
             Console.WriteLine("'Shh. Slow down. Your name is the most important thing you possess.'");
+            player.Name = Console.ReadLine();
         }
 
-        Console.Clear();
-        Console.WriteLine($"'You are a raindrop in a storm, {player.Name}. An eternity precedes you, and an eternity shall succeed you.'");
-        Console.WriteLine();
-        Console.WriteLine("'Three of my children still walk freely under the sun.'");
-        Console.WriteLine($"'Are you HUMAN, {player.Name}? The most mischievous of my children, forever bent unto the unknown?'");
-        
-        Console.WriteLine();
-        Console.WriteLine("'Are you a DWARF, my Champion? Descended from the First of the First Ones who made the world?'");
-        
-        Console.WriteLine();
-        Console.WriteLine("'Or are you PESHMURGA? Molded from ash, ushered into a world aflame?'");
-        
+        Console.WriteLine($"'Your name is {player.Name}, is that right?' YES or NO");
         Console.WriteLine();
 
         string command = Console.ReadLine().ToLower();
+        while (command != "no" && command != "yes")
+        {
+            Console.WriteLine("'Steady yourself. You are no doubt confused and afraid, but you must center yourself for this.'");
+            Console.WriteLine();
+            Console.WriteLine($"'Now... is {player.Name} your name?'");
+        }
+
+        
+        if (command == "no")
+        {
+            Console.WriteLine("'Take a moment to breathe. Let it come to you. Your name is the most important thing you possess.'");
+            Console.WriteLine();
+            command = Console.ReadLine();
+
+        }
+
+        // Take whatever the player name is and use it to name their nemeses 
+        nemesis1.Name = $"Ur'{player.Name}";
+        nemesis2.Name = $"Da-{player.Name}";
+
+        Console.Clear();
+        Console.WriteLine();
+        Console.WriteLine($"'You are a raindrop in a storm, {player.Name}. An eternity precedes you, and an eternity shall succeed you.'");
+        Console.WriteLine();
+        Console.WriteLine("'Three of my children still walk freely under the sun.'");
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine($"'Are you HUMAN, {player.Name}? The most mischievous of my children, forever bent unto the unknown?'");
+        Console.WriteLine();
+        Console.WriteLine("'Are you a DWARF? Descended from the First of the First Ones who made the world?'");
+        Console.WriteLine();
+        Console.WriteLine("'Or are you PESHMURGA? Molded from ash, ushered into a world aflame?'");
+        Console.WriteLine();
+
+        command = Console.ReadLine().ToLower();
         while (command != "human" && command != "dwarf" && command != "peshmurga")
         {
             Console.WriteLine("'The After-Sea does not hold this soul. Your form obeys your intent. Focus.'");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Human, dwarf, or peshmurga?");
             command = Console.ReadLine().ToLower();
         }
+
+        Console.Clear();
 
         string transform;
         switch (command)
@@ -108,15 +159,19 @@ class Program
 
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("You realize you are facedown. Buried... but only barely. " +
-            "No sooner do you envision your arms to push yourself to your knees than you feel how they mold themselves.");
+        Console.WriteLine("You realize you are facedown. Buried... but only barely.");
         Console.WriteLine();
-        Console.WriteLine("You... are made of clay. You can see your body is not flesh.");
+        Console.WriteLine("No sooner do you envision your arms to push yourself to your knees than you feel how they mold themselves.");
+        Console.WriteLine();
+        Console.WriteLine("You... are made of clay? You can see your body is not flesh.");
         Console.WriteLine();
         Console.WriteLine("You open your mouth to scream, but there is no mouth yet. Your face splits and contorts into pained existence. There is no voice yet.");
-
+        Console.WriteLine("");
+        Console.WriteLine("");
         Console.WriteLine("'Shhh... you are becoming. Focus on my voice, my child.'");
-        Console.WriteLine("'You are almost complete... now you must accept a boon.'");
+        Console.WriteLine("");
+        Console.WriteLine("'You are almost complete... you need only to accept the spark of life.'");
+        Console.WriteLine("");
 
         Console.WriteLine("Boon of the ANTLION (Choosing this option will grant you +3 POWER, which makes your physical strikes more dangerous.)");
         Console.WriteLine();
@@ -137,20 +192,32 @@ class Program
         {
             case "antlion":
                 player.POW += 3;
+                nemesis1.CON += 3;
+                nemesis2.WIL += 3;
                 Console.WriteLine("Your physique is molded further... your muscles ripple. The ferocity of a predator rumbles within you.");
                 break;
             case "peacock":
                 player.WIL += 3;
+                nemesis1.POW += 3;
+                nemesis2.CON += 3;
                 Console.WriteLine("Your mind feels sharper... your skull pulses. The song of creation rings in your consciousness.");
                 break;
             case "ogre":
                 player.CON += 3;
+                nemesis1.WIL += 3;
+                nemesis2.POW += 3;
                 Console.WriteLine("Your skin thickens... your heartbeat is louder. A guttural roar sings through your soul.");
                 break;
         }
 
-        Console.WriteLine("As this happens, your face splits open at last. You scream." +
-            "At last... you scream.");
+        Console.WriteLine("");
+        Console.WriteLine("As this happens, your face splits open at last. You scream.");
+        Console.ReadLine();
+        Console.Clear();
+        Console.WriteLine("");
+        Console.WriteLine("");
+        Console.WriteLine("");
+        Console.WriteLine("At last... you can scream.");
 
     }
 
@@ -159,50 +226,89 @@ class Program
         
         Console.WriteLine("Until indicated, you can just hit ENTER to progress.");
         Console.ReadLine();
+        Console.Clear();
         Console.WriteLine();
         Console.WriteLine("First, you must understand where you are, and why you should care...");
         Console.ReadLine();
         Console.WriteLine("We are all connected. All living things have sway on others.");
+        Console.WriteLine();
         Console.WriteLine("The impulse of life is present in all things that grow. It pulses in hearts and roots alike.");
+        Console.ReadLine();
         Console.WriteLine("The beauty of entropy is present in the living and nonliving.");
-        Console.WriteLine("We were formed in the discordant harmony of the universe. We are the ghosts of stars observing what comes after the supernova.");
+        Console.WriteLine();
+        Console.WriteLine("We were formed in the discordant harmony of the universe.");
+        Console.ReadLine();
+        Console.Clear();
+        Console.WriteLine();
+        Console.WriteLine("We are the ghosts of stars... observing the aftermath of the supernova.");
         Console.ReadLine();
         Console.WriteLine("We are born from the decay of beautiful things. And life consumes life for the same reason.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("Centuries ago, a consort of kings, empresses, and magicians turned their backs on this balance. They refused to decay.");
+        Console.WriteLine("Centuries ago, a consort of kings, empresses, and magicians turned their backs on this balance.");
+        Console.WriteLine();
+        Thread.Sleep(3000);
+        Console.WriteLine("They refused to decay.");
         Console.ReadLine();
-        Console.WriteLine("They amassed the wealth and resources of generations to build a grand pyramid, and conspired to ascend to godhood together.");
+        Console.WriteLine("They had vision. Unity. Influence.");
+        Console.WriteLine();
+        Console.WriteLine("They amassed the wealth and resources of generations to build a grand pyramid.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("It isn't known what happened at the apex of their ambition.");
-        Console.WriteLine("Historians and theologists contend different hypotheses as to what occurred at the conclusion of their ritual.");
-        Console.WriteLine("The earth itself roiled like a stormy ocean. The heavens roared as if a great beast had awakened. The air turned to fire for miles around.");
+        Console.WriteLine("They intended to ascend to godhood together.");
+        Console.ReadLine();
+        Console.Clear();
+        Console.WriteLine("It isn't known what happened at the apex of their ambitions.");
+        Console.WriteLine();
+        Console.WriteLine("Historians and theologists contend different hypotheses as to what occurred at the conclusion of their ritual...");
+        Console.WriteLine();
+        Console.WriteLine("They have only oral accounts from the traumatized few who survived. And even these don't quite align.");
+        Console.ReadLine();
+        Console.Clear();
+        Console.WriteLine();
+        Console.WriteLine("The earth itself roiled like an ocean in tempest.");
+        Console.WriteLine();
+        Console.WriteLine("The heavens roared as if a great beast had awakened. The air turned to fire for miles around.");
+        Console.WriteLine();
+        Console.WriteLine("The region, once verdant and rich with life, turned to ash and glass all at once.");
         Console.ReadLine();
         Console.WriteLine("Some say they had succeeded, and the display of raw, unbridled destruction was the death of the gods whose places they took.");
-        Console.WriteLine("Others say they destroyed themselves in their hubris. A hopeful thought.");
-        Console.Clear();
-        Console.WriteLine("The pyramid erupted into a rubbled husk of its former glory. The monarchs and their magicians were never again seen since...");
-        Console.WriteLine("But their influence has been felt for centuries.");
+        Console.WriteLine();
+        Console.WriteLine("Others say they destroyed themselves in their hubris. Or the gods themselves came to do it. A hopeful thought, for some.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("Greedy souls have since conspired to rebuild the pyramid.");
-        Console.WriteLine("Lesser, weaker, pettier men and women have restored it, and have been rewarded with oblivion and destruction each time.");
-        Console.WriteLine("The same sickness of spirit that draws them near... it makes them turn on one another at the final hour.");
+        Console.WriteLine("What is clear is how the monarchs and their magicians were never again seen since.");
+        Console.WriteLine();
+        Console.WriteLine("The pyramid had erupted into a rubbled husk of its former glory.");
+        Console.WriteLine();
+        Console.WriteLine("But their influence has been felt for centuries. The consequences carried far into the hearts of many.");
+        Console.ReadLine();
+        Console.Clear();
+        Console.WriteLine("People have since come to rebuild the pyramid.");
+        Console.WriteLine();
+        Console.WriteLine("Lesser, weaker, pettier men and women have restored it, and their studies have been rewarded with oblivion each time.");
+        Console.WriteLine();
+        Console.WriteLine("The same sickness of spirit that draws them near... it makes them turn on one another in the end.");
+        Console.WriteLine();
+        Console.WriteLine("Always. Every time.");
         Console.ReadLine();
         Console.Clear();
         Console.WriteLine("And then there is you.");
+        Console.ReadLine();
+        Console.Clear();
         Console.WriteLine("You, too, defied the natural order of life.");
-        Console.WriteLine("You died trying to cling to immortality, and it has stained your very spirit.");
+        Console.WriteLine();
+        Console.WriteLine("You died trying to cling to immortality, and it has stained your very soul.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("Anahata, the Goddess of Water, Fertility, and Harmony, has denied your soul passage into the After-Sea.");
+        Console.WriteLine("Anahata, the Goddess of Water, Fertility, and Harmony, has denied you passage into the After-Sea.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("She will carve you from the clay, just as her First Ones were, to enact penance and restore balance as her Champion.");
+        Console.WriteLine("She will carve you from the clay, just as her First Ones were, to enact your penance and restore balance as her Champion.");
+        Console.WriteLine();
         Console.WriteLine("Your soul will not know rest until she is satisfied.");
         Console.WriteLine();
-        Console.WriteLine("The scars of your actions will become clear to you in time.");
+        Console.WriteLine("The scars of your past actions will become clear to you in time.");
         Console.ReadLine();
         Console.Clear();
 

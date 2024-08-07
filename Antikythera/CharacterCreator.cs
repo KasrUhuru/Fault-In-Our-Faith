@@ -115,6 +115,11 @@ namespace Antikythera
         {
             Defense = _baseDefense + DEX;
         }
+        
+        public void GetItem()
+        {
+            // Remove from the room and create in your inventory
+        }
 
         public void EquipWeapon(Weapon weapon)
         {
@@ -128,7 +133,7 @@ namespace Antikythera
             int _swing = attacker.EquippedWeapon.RollDamage();
             int _damage = attacker.POW + _swing - target.DamageResist;
 
-            if (_damage < 0) { _damage = 1;}
+            if (_damage < 0) { _damage = 1; }
 
             target.Health -= _damage;
 
