@@ -7,7 +7,7 @@ namespace Antikythera
     /// <summary>
     /// Represents a character in the game with various attributes and properties.
     /// </summary>
-    public abstract class Character
+    public class Character
     {
         public string Name { get; set; }
         public string Species { get; set; }
@@ -91,7 +91,7 @@ namespace Antikythera
         /// </summary>
         public Character()
         {
-            EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
+            // EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
             UpdateHealth();
             UpdateDefense();
         }
@@ -124,7 +124,7 @@ namespace Antikythera
 
         public void Attack(Character attacker, Character target)
         {
-            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            // FIXME: Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
             int _swing = attacker.EquippedWeapon.RollDamage();
             int _damage = attacker.POW + _swing - target.DamageResist;
 
