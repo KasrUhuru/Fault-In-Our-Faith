@@ -9,19 +9,21 @@ namespace Antikythera
     public abstract class Item
     {
         // Base template to create Treasure, Weapon, Armor, Consumable, and Magic Item subclasses
-        int Cost { get; set; }
-        double Weight { get; set; }
-        string Material { get; set; }
+        public string Name { get; set; }
+        public int Cost { get; set; }
+        public double Weight { get; set; }
+        public string Material { get; set; }
+        public Room CurrentRoom { get; set; }
     }
 
     public class Weapon : Item
     {
         // Inherit attributes from Item
         // Add damage range and type
-        string DamageType { get; set; }
-        int MinDamage { get; set; }
-        int MaxDamage { get; set; }
-        private static Random random = new Random();
+        public string DamageType { get; set; }
+        public int MinDamage { get; set; }
+        public int MaxDamage { get; set; }
+        public static Random random = new Random();
 
         public int RollDamage()
         {

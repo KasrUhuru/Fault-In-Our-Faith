@@ -11,6 +11,16 @@ namespace Antikythera
 
         public void EnemyAttack(Enemy attacker, Character target)
         {
+            // Stop dead character from fighting back
+            if (!attacker.IsAlive) { return; }
+            // Stop non-adjacent characters from attacking each other
+            if (attacker.CurrentRoom != target.CurrentRoom)
+            {
+                Console.WriteLine($"You don't see {target.Name} here!");
+                return;
+            }
+
+            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
             int _swing = attacker.EquippedWeapon.RollDamage();
             int _damage = attacker.POW + _swing - target.DamageResist;
 
@@ -21,7 +31,9 @@ namespace Antikythera
             if (target.Health <= 0)
             {
                 target.Health = 0;
-                target.Alive = false;
+                target.IsAlive = false;
+                target.Die(); // display "### has died!"
+                if (target.IsPlayer) { target.Respawn(); }
             }
         }
 

@@ -13,10 +13,10 @@ namespace Antikythera;
 
 class Program
 {
+
     public static Character player = new Character();
     public static Character nemesis1 = new Character(); // Placeholder to be used later in the demo
     public static Character nemesis2 = new Character(); // These 2 nemeses will make the choices that the player doesn't
-
     static void Main(string[] args)
     {
         Console.WriteLine("Welcome to the world of Antikythera!");
@@ -48,8 +48,9 @@ class Program
 
     static void FastStart()
     {
-        // The nemesis characters become what the player doesn't
+        // This method initializes the player without the exposition
 
+        // The nemesis characters become what the player doesn't
         Console.Write("Name: ");
         player.Name = Console.ReadLine();
         nemesis1.Name = $"Ur'{player.Name}";
@@ -360,17 +361,49 @@ class Program
 
     static void InitializeGame()
     {
-        // Instantiate the current room: The Clay Pits
+        // Instantiate the starting room: The Clay Pits
         // The player can LOOK and EXAMINE things
 
-        // FIXME: Find a way to define Character location
-        // player.CurrentRoom = clayPits;
+        Room clayPits = new Room("R001",
+                                "Clay Pits",
+                                "The sounds of rushing water echoes through this room from an unseen source. " +
+                                "The sun struggles to reach the bottom of this pit, whose lip is many meters below the surface. " +
+                                "If there were ever ladders or steps built into this place, there's no sign of them. " +
+                                "Broken wood and cloth scraps are barely visible in the slick muck. This place looks abandoned. "
+                                );
 
-        // Create the actual game environment
+        player.CurrentRoom = clayPits;
+        player.SpawnRoom = clayPits;
+
+        Room coldTunnel = new Room("R002",
+                                "Cold Tunnel",
+                                "The sound of rushing water is louder here, and the air is frigid. " +
+                                "The only sources of light are far behind and far ahead. You can barely see in here. ",
+                                "Dozens of faces and limbs silently roil in the walls, as if trying to break through. " +
+                                "You can't help but wonder if this had been you only moments before."
+                                );
+
+        nemesis1.CurrentRoom = coldTunnel;
+
+        Room shallowPit = new Room("R003",
+                                "Shallow Pit",
+                                "Roaring water threatens to deafen you here. " +
+                                "You can see vines and roots snaking down into this pit, just barely out of reach."
+                                );
+
+        nemesis2.CurrentRoom = shallowPit;
+
+        // Prompt the player to move around
         Console.WriteLine("It takes you a few moments to finish purging the mud from your belly.");
         Console.WriteLine();
         Console.WriteLine("Coughing, retching, shivering, you shakily get to your feet.");
         Console.WriteLine("");
+        Console.WriteLine("You wipe the last of the muck from your hands and face. You can now open your eyes and LOOK around.");
+        Console.ReadLine();
+
+        // The guided narrative portion is now over. The player can act freely and interact with the world
+
+
     }
 }
 

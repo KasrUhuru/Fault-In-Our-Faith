@@ -12,9 +12,13 @@ namespace Antikythera
         public string Name { get; set; }
         public string Species { get; set; }
 
-        public bool Alive { get; set; } = true;
+        public bool IsAlive { get; set; } = true;
+
+        public bool IsPlayer { get; set; } = false;
 
         public Room CurrentRoom { get; set; }
+
+        public Room SpawnRoom { get; set; }
 
         /// <summary>
         /// Attributes
@@ -85,15 +89,16 @@ namespace Antikythera
             set { _defense = value; }
         }
 
-        public Weapon EquippedWeapon { get; set; }
+        public Weapon EquippedWeapon { get; set; } = new Unarmed();
 
+        public List<Item> Inventory { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Character"/> class.
         /// </summary>
         public Character()
         {
-            // EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
+            EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
             UpdateHealth();
             UpdateDefense();
         }
@@ -117,23 +122,91 @@ namespace Antikythera
         {
             Defense = _baseDefense + DEX;
         }
-        
-        public void GetItem()
+
+        public void GetItem(Character character, Item item, Room room)
         {
+            // Can't grab something if you're not in the same room
+            if (character.CurrentRoom != item.CurrentRoom)
+            {
+                Console.WriteLine($"You don't see any {item.Name} here.");
+                return;
+            }
+
             // Remove from the room and create in your inventory
+            room.RemoveItem(item);
+            Console.WriteLine($"You pick up the {item.Name}.");
+
+            // Add the item to your inventory
+            character.Inventory.Add(item);
         }
 
-        public void EquipWeapon(Weapon weapon)
+        public void DropItem(Character character, Item item, Room room)
+        {
+            if (!character.Inventory.Contains(item))
+            {
+                Console.WriteLine($"You don't have that in your possession.");
+                return;
+            }
+
+            // Populate the room's Objects list with the dropped item
+            character.Inventory.Remove(item);
+            room.Objects.Add(item);
+            Console.WriteLine($"You drop the {item.Name} on the floor.");
+        }
+
+
+    
+
+        public void DisplayInventory(Character character)
+        {
+            Console.WriteLine("You check your inventory...");
+
+            if (character.Inventory.Count == 0)
+            {
+                Console.WriteLine("Your inventory is empty.");
+                return;
+            }
+
+            for (int i = 0; i < character.Inventory.Count; i++)
+            {
+                Item item = character.Inventory[i];
+
+                if (i == character.Inventory.Count - 1 && character.Inventory.Count > 1)
+                {
+                    // For the last item in a list of more than one item, use "and" before the item name
+                    Console.Write("and ");
+                }
+
+                Console.Write($"a {item.Name}");
+
+                if (i < character.Inventory.Count - 1)
+                { Console.Write(", "); }
+                else
+                { Console.WriteLine("."); }
+            }
+        }
+
+        public void EquipWeapon(Character character, Weapon weapon)
         {
             // Remove from personal inventory and create in Weapon Slot
-            EquippedWeapon = weapon;
+            character.EquippedWeapon = weapon;
         }
 
         public void Attack(Character attacker, Character target)
         {
-            // FIXME: Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            // Stop dead character from fighting back
+            if (!attacker.IsAlive) { return; }
+            // Stop non-adjacent characters from attacking each other
+            if (attacker.CurrentRoom != target.CurrentRoom)
+            {
+                Console.WriteLine($"You don't see {target.Name} here!");
+                return;
+            }
+
+            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
             int _swing = attacker.EquippedWeapon.RollDamage();
             int _damage = attacker.POW + _swing - target.DamageResist;
+
 
             if (_damage < 0) { _damage = 1; }
 
@@ -142,13 +215,25 @@ namespace Antikythera
             if (target.Health <= 0)
             {
                 target.Health = 0;
-                target.Alive = false;
+                target.IsAlive = false;
+                target.Die(); // display "### has died!"
+                if (target.IsPlayer) { target.Respawn(); }
             }
             
         }
 
         public void Attack(Character attacker, Enemy target)
         {
+            // Stop dead character from fighting back
+            if (!attacker.IsAlive) { return; }
+            // Stop non-adjacent characters from attacking each other
+            if (attacker.CurrentRoom != target.CurrentRoom)
+            {
+                Console.WriteLine($"You don't see {target.Name} here!");
+                return;
+            }
+
+            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
             int _swing = attacker.EquippedWeapon.RollDamage();
             int _damage = attacker.POW + _swing - target.DamageResist;
 
@@ -159,8 +244,33 @@ namespace Antikythera
             if (target.Health <= 0)
             {
                 target.Health = 0;
-                target.Alive = false;
+                target.IsAlive = false;
+                target.Die(); // display "### has died!"
+                if (target.IsPlayer) { target.Respawn(); }
             }
+        }
+
+        public void Die()
+        {
+            Console.WriteLine($"{Name} has died!");
+            if (!(EquippedWeapon is Unarmed))
+            {
+                Console.WriteLine($"Their {EquippedWeapon.Name} drops to the ground!");
+                CurrentRoom.Objects.Add(EquippedWeapon);
+                EquippedWeapon = new Unarmed();  // Ensure Unarmed is a valid class
+            }
+            // Drop your equipped item on the ground and become a corpse
+            // Inventory is the only thing that stays the same
+        }
+
+        public void Respawn()
+        {
+
+            Console.WriteLine("You break through the surface of the grey, muddled water with a gasp.");
+            Console.WriteLine("You... died. But you're here again. Where the killing blow had landed still throbs painfully...");
+            Health += _baseHealth;
+            CurrentRoom = SpawnRoom;
+            IsAlive = true;
         }
     }
 
