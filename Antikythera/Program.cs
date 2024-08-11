@@ -372,8 +372,6 @@ class Program
                                 "Broken wood and cloth scraps are barely visible in the slick muck. This place looks abandoned. "
                                 );
 
-        player.CurrentRoom = clayPits;
-        player.SpawnRoom = clayPits;
 
         Room coldTunnel = new Room("R002",
                                 "Cold Tunnel",
@@ -383,7 +381,6 @@ class Program
                                 "You can't help but wonder if this had been you only moments before."
                                 );
 
-        nemesis1.CurrentRoom = coldTunnel;
 
         Room shallowPit = new Room("R003",
                                 "Shallow Pit",
@@ -391,7 +388,25 @@ class Program
                                 "You can see vines and roots snaking down into this pit, just barely out of reach."
                                 );
 
+
+        clayPits.AddExit("north", coldTunnel);
+        coldTunnel.AddExit("south", clayPits);
+
+        coldTunnel.AddExit("north", shallowPit);
+        shallowPit.AddExit("south", coldTunnel);
+
+        player.CurrentRoom = clayPits;
+        clayPits.AddPerson(player); // Add player to the People list in clayPits
+
+        player.SpawnRoom = clayPits;
+        player.IsPlayer = true; // Ensure the Respawn method will work ONLY for the player
+
+        nemesis1.CurrentRoom = coldTunnel;
+        coldTunnel.AddPerson(nemesis1); // Add to the People list in coldTunnel
+
         nemesis2.CurrentRoom = shallowPit;
+        shallowPit.AddPerson(nemesis2); // Add to the People list in shallowPit
+
 
         // Prompt the player to move around
         Console.WriteLine("It takes you a few moments to finish purging the mud from your belly.");

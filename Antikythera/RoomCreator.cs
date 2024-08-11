@@ -26,7 +26,7 @@ public class Room
 
 	public Room(string roomID, string roomName, string description)
 	{
-        // Constructor here
+        // Constructor with bare minimum parameters
         RoomID = roomID;
         RoomName = roomName;
         Description = description;
@@ -37,7 +37,7 @@ public class Room
 
     public Room(string roomID, string roomName, string description, string unseenDescription)
     {
-        // Constructor here
+        // Base constructor with unseen parameter
         RoomID = roomID;
         RoomName = roomName;
         Description = description;
@@ -47,23 +47,20 @@ public class Room
         People = new List<Character>();
     }
 
-    public void RemoveItem(Item item)
-	{
-		// The object is no longer in the room
-		Objects.Remove(item);
-	}
+    public void AddItem(Item item) // The object is either created or dropped into the room
+    { Objects.Add(item); }
 
-	public void RemovePerson(Character character)
-	{
-		// In case someone dies or leaves the room
-		People.Remove(character);
-	}
+    public void RemoveItem(Item item) // The object is no longer in the room
+    { Objects.Remove(item); }
 
-	public void AddExit(string direction, Room room)
-	{
-		// Add a direction you can leave the room into an existing room
-		Exits[direction] = room;
-	}
+    public void AddPerson(Character character) // Someone has arrived or spawned
+    { People.Add(character); }
+
+    public void RemovePerson(Character character) // Someone dies or leaves the room
+    { People.Remove(character); }
+
+	public void AddExit(string direction, Room room) // Add a direction you can leave
+    { Exits[direction] = room; }
 
 	 
 }

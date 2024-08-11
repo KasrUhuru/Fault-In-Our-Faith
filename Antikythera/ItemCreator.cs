@@ -32,9 +32,9 @@ namespace Antikythera
     }
         public class Spear : Weapon
         {
-            public Spear()
+            public Pickaxe()
             {
-                string Name = "spear";
+                string Name = "pickaxe";
                 string DamageType = "pierce";
                 int MinDamage = 2;
                 int MaxDamage = 4;
@@ -54,9 +54,9 @@ namespace Antikythera
 
         public class Sickle : Weapon
         {
-            public Sickle()
+            public Shovel()
             {
-                string Name = "sickle";
+                string Name = "shovel";
                 string DamageType = "cut";
                 int MinDamage = 1;
                 int MaxDamage = 4;

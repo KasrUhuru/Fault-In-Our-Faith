@@ -123,10 +123,121 @@ namespace Antikythera
             Defense = _baseDefense + DEX;
         }
 
-        public void GetItem(Character character, Item item, Room room)
+        public void Look() // Display the obvious people and objects in the room
         {
-            // Can't grab something if you're not in the same room
-            if (character.CurrentRoom != item.CurrentRoom)
+            Console.WriteLine("You look around the room...");
+            Console.WriteLine(CurrentRoom.Description);
+            Console.Write("You see "); // Start listing people and enemies
+
+            if (CurrentRoom.People.Count == 1) // You are the only one in this room
+            { Console.WriteLine("no one here."); }
+
+            if (CurrentRoom.People.Count == 2) // There is someone else here
+            {
+                for (int i = 0; i < CurrentRoom.People.Count; i++)
+                    if (!CurrentRoom.People[i].IsPlayer) 
+                        { Console.Write($"{CurrentRoom.People[i].Name} here."); }
+            }
+
+            else // You and at least 2 others are here
+            {
+                bool firstPerson = true;
+
+                for (int i = 0; i < CurrentRoom.People.Count; i++)
+                {
+                    if (!CurrentRoom.People[i].IsPlayer)
+                    {
+                        if (!firstPerson)
+                        {
+                            Console.Write(", ");
+                        }
+                        Console.Write(CurrentRoom.People[i].Name);
+                        firstPerson = false;
+                    }
+                }
+                Console.WriteLine("are here.");
+
+            }
+
+            Console.Write("You see "); // Start listing objects on the ground
+            if (CurrentRoom.Objects.Count == 0)
+            {
+                Console.WriteLine("nothing of interest here.");
+            }
+
+            else if (CurrentRoom.Objects.Count == 1)
+            {
+                Console.WriteLine($"a {CurrentRoom.Objects[0]} here.");
+            }
+
+            else
+            {
+                for (int i = 0; i < CurrentRoom.Objects.Count; i++)
+                {
+                    Item item = CurrentRoom.Objects[i];
+
+                    if (i == CurrentRoom.Objects.Count - 1 && CurrentRoom.Objects.Count > 1)
+                    {
+                        // For the last item in a list of more than one item, use "and" before the item name
+                        Console.Write("and ");
+                    }
+
+                    Console.Write($"a {item.Name}");
+
+                    if (i < CurrentRoom.Objects.Count - 1)
+                    { Console.Write(", "); }
+                    else 
+                    { Console.WriteLine("."); }
+                }
+            }
+
+            Console.Write("You can leave this room from the "); // Start listing exits
+            var exitKeys = new List<string>(CurrentRoom.Exits.Keys);  // Get the list of exit directions
+
+            for (int i = 0; i < exitKeys.Count; i++)
+            {
+                string exit = exitKeys[i];
+
+                if (i == exitKeys.Count - 1 && exitKeys.Count > 1)
+                {
+                    // For the last exit in a list of more than one, use "and" before the exit name
+                    Console.Write("and ");
+                }
+
+                Console.Write(exit);
+
+                if (i < exitKeys.Count - 1)
+                { Console.Write(", "); }
+                else
+                { Console.WriteLine("."); }
+            }
+        }
+
+        public void Move(string direction) // Move from one room to the other
+        {
+            if (!CurrentRoom.Exits.Keys.Contains(direction))
+            { Console.WriteLine("You can't go that way."); return; }
+
+            CurrentRoom.RemovePerson(this);
+            CurrentRoom = CurrentRoom.Exits[direction];
+            CurrentRoom.AddPerson(this);
+
+            if (IsPlayer) // Feedback for the player
+            {
+                Console.WriteLine($"You head {direction} to the {CurrentRoom.RoomName}.");
+            }
+
+            if (!IsPlayer && (this.CurrentRoom == Program.player.CurrentRoom) ) // Prevent movement from outside NPCs to generate feedback text
+            {
+                Console.WriteLine($"{this.Name} moves to the {direction}.");
+            }
+
+        }
+
+        public void GetItem(Item item, Room room) // Room item goes straight to inventory, but future method will send it to hands 
+        {
+            // Can't grab something if it's not there
+            if (!room.Objects.Contains(item))
             {
                 Console.WriteLine($"You don't see any {item.Name} here.");
                 return;
@@ -137,41 +248,44 @@ namespace Antikythera
             Console.WriteLine($"You pick up the {item.Name}.");
 
             // Add the item to your inventory
-            character.Inventory.Add(item);
+            Inventory.Add(item);
         }
 
-        public void DropItem(Character character, Item item, Room room)
+        public void DropItem(Item item, Room room) // Removes from inventory and adds to the room
         {
-            if (!character.Inventory.Contains(item))
+            if (!Inventory.Contains(item))
             {
                 Console.WriteLine($"You don't have that in your possession.");
                 return;
             }
 
             // Populate the room's Objects list with the dropped item
-            character.Inventory.Remove(item);
+            Inventory.Remove(item);
             room.Objects.Add(item);
             Console.WriteLine($"You drop the {item.Name} on the floor.");
+        } 
+
+        public void DiscardItem(Item item) // Removes from inventory and it doesn't exist anymore
+        {
+            Inventory.Remove(item);
+            Console.WriteLine($"You toss the {item.Name} from your inventory.");
         }
 
-
-    
-
-        public void DisplayInventory(Character character)
+        public void DisplayInventory() // Check contents of inventory
         {
             Console.WriteLine("You check your inventory...");
 
-            if (character.Inventory.Count == 0)
+            if (Inventory.Count == 0)
             {
                 Console.WriteLine("Your inventory is empty.");
                 return;
             }
 
-            for (int i = 0; i < character.Inventory.Count; i++)
+            for (int i = 0; i < Inventory.Count; i++)
             {
-                Item item = character.Inventory[i];
+                Item item = Inventory[i];
 
-                if (i == character.Inventory.Count - 1 && character.Inventory.Count > 1)
+                if (i == Inventory.Count - 1 && Inventory.Count > 1)
                 {
                     // For the last item in a list of more than one item, use "and" before the item name
                     Console.Write("and ");
@@ -179,33 +293,53 @@ namespace Antikythera
 
                 Console.Write($"a {item.Name}");
 
-                if (i < character.Inventory.Count - 1)
+                if (i < Inventory.Count - 1)
                 { Console.Write(", "); }
                 else
                 { Console.WriteLine("."); }
             }
         }
 
-        public void EquipWeapon(Character character, Weapon weapon)
+        public void EquipWeapon(Weapon weapon) // Remove from inventory and set equipped weapon
         {
-            // Remove from personal inventory and create in Weapon Slot
-            character.EquippedWeapon = weapon;
-        }
+            if (!Inventory.Contains(weapon))
+            {
+                Console.WriteLine($"You don't have a {weapon.Name} in your inventory.");
+                return;
+            }
 
-        public void Attack(Character attacker, Character target)
+            if (EquippedWeapon.Name == "fists")
+            {
+                EquippedWeapon = weapon;
+                Console.WriteLine($"You equip the {weapon.Name}.");
+                Inventory.Remove(weapon);
+            }
+
+            else
+            {
+                Inventory.Add(EquippedWeapon);
+                Console.WriteLine($"You unequip the {EquippedWeapon.Name}.");
+                EquippedWeapon = weapon;
+                Console.WriteLine($"You equip the {weapon.Name}.");
+                Inventory.Remove(weapon);
+            }
+
+        } 
+
+        public void Attack(Character target) // Use equipped weapon to attack an enemy Character
         {
             // Stop dead character from fighting back
-            if (!attacker.IsAlive) { return; }
+            if (!IsAlive) { return; }
             // Stop non-adjacent characters from attacking each other
-            if (attacker.CurrentRoom != target.CurrentRoom)
+            if (CurrentRoom != target.CurrentRoom)
             {
                 Console.WriteLine($"You don't see {target.Name} here!");
                 return;
             }
 
-            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
-            int _swing = attacker.EquippedWeapon.RollDamage();
-            int _damage = attacker.POW + _swing - target.DamageResist;
+            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            int _swing = EquippedWeapon.RollDamage();
+            int _damage = POW + _swing - target.DamageResist;
 
 
             if (_damage < 0) { _damage = 1; }
@@ -220,22 +354,22 @@ namespace Antikythera
                 if (target.IsPlayer) { target.Respawn(); }
             }
             
-        }
+        } 
 
-        public void Attack(Character attacker, Enemy target)
+        public void Attack(Enemy target) // Use equipped weapon to attack a non-Character enemy
         {
             // Stop dead character from fighting back
-            if (!attacker.IsAlive) { return; }
+            if (!IsAlive) { return; }
             // Stop non-adjacent characters from attacking each other
-            if (attacker.CurrentRoom != target.CurrentRoom)
+            if (CurrentRoom != target.CurrentRoom)
             {
                 Console.WriteLine($"You don't see {target.Name} here!");
                 return;
             }
 
-            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
-            int _swing = attacker.EquippedWeapon.RollDamage();
-            int _damage = attacker.POW + _swing - target.DamageResist;
+            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            int _swing = EquippedWeapon.RollDamage();
+            int _damage = POW + _swing - target.DamageResist;
 
             if (_damage < 0) { _damage = 1; }
 
@@ -248,9 +382,9 @@ namespace Antikythera
                 target.Die(); // display "### has died!"
                 if (target.IsPlayer) { target.Respawn(); }
             }
-        }
+        } 
 
-        public void Die()
+        public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
             Console.WriteLine($"{Name} has died!");
             if (!(EquippedWeapon is Unarmed))
@@ -261,7 +395,7 @@ namespace Antikythera
             }
             // Drop your equipped item on the ground and become a corpse
             // Inventory is the only thing that stays the same
-        }
+        } 
 
         public void Respawn()
         {
@@ -272,6 +406,7 @@ namespace Antikythera
             CurrentRoom = SpawnRoom;
             IsAlive = true;
         }
+
     }
 
     // Example of a derived class
