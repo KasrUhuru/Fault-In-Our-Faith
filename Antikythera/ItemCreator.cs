@@ -14,6 +14,8 @@ namespace Antikythera
         public double Weight { get; set; }
         public string Material { get; set; }
         public Room CurrentRoom { get; set; }
+
+        public string Description { get; set; }
     }
 
     public class Weapon : Item
@@ -38,6 +40,7 @@ namespace Antikythera
                 this.DamageType = "pierce";
                 this.MinDamage = 2;
                 this.MaxDamage = 4;
+                this.Description = "This tool has a bronze beak affixed to the thicker end. Meant to be used with both hands to shatter rocks.";
             }
         }
 
@@ -49,7 +52,8 @@ namespace Antikythera
                 this.DamageType = "blunt";
                 this.MinDamage = 1;
                 this.MaxDamage = 3;
-            }
+                this.Description = "This tool has a heavy rounded bronze surface affixed to a handle no longer than your wrist. Good for pounding.";
+        }
         }
 
         public class Shovel : Weapon
@@ -60,7 +64,8 @@ namespace Antikythera
                 this.DamageType = "cut";
                 this.MinDamage = 1;
                 this.MaxDamage = 4;
-            }
+                this.Description = "You see a meter-long wooden handle with a bronze plate affixed to the thicker end. Meant to scoop and chuck piles of earth.";
+        }
         }
 
         public class Unarmed : Weapon

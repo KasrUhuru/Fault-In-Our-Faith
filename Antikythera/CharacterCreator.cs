@@ -11,13 +11,10 @@ namespace Antikythera
     {
         public string Name { get; set; }
         public string Species { get; set; }
-
         public bool IsAlive { get; set; } = true;
-
         public bool IsPlayer { get; set; } = false;
-
+        public string Description { get; set; }
         public Room CurrentRoom { get; set; }
-
         public Room SpawnRoom { get; set; }
 
         /// <summary>
@@ -69,6 +66,9 @@ namespace Antikythera
             set { _health = value; }
         }
 
+        public int MaxHealth { get; set; }
+
+
         // Set base defense
         private int _baseDefense = 8;
 
@@ -100,7 +100,10 @@ namespace Antikythera
         {
             EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
             UpdateHealth();
+            MaxHealth = Health;
             UpdateDefense();
+            this.Description = $"You see a {Species}.";
+            IsPlayer = false;
         }
 
         // The character can now equip weapons to increase damage output
@@ -112,7 +115,9 @@ namespace Antikythera
         /// </summary>
         private void UpdateHealth()
         {
+            MaxHealth = _baseHealth + CON;
             Health = _baseHealth + CON;
+
         }
 
         /// <summary>
@@ -215,11 +220,32 @@ namespace Antikythera
             }
         }
 
-        public void Examine()
+        public void Examine(string target)
         {
             // Display the description of an Item or Character
-        }
+            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
 
+            Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null && character == null)
+            {
+                Console.WriteLine($"You don't see any {target} here.");
+                return;
+            }
+
+            else if (item == null && character != null)
+            {
+                Console.WriteLine(character.Description);
+                return;
+            }
+
+            else if (item != null && character == null)
+            {
+                Console.WriteLine(item.Description);
+                return;
+            }
+
+        } // Get a quick description of whatever you're looking at
 
         public void Move(string direction) // Move from one room to the other
         {
@@ -246,7 +272,7 @@ namespace Antikythera
                 }
             }
 
-            if (!IsPlayer && (this.CurrentRoom == Program.player.CurrentRoom) ) // Prevent movement from outside NPCs to generate feedback text
+            if (!IsPlayer && (this.CurrentRoom == Program.player.CurrentRoom)) // Prevent movement from outside NPCs to generate feedback text
             {
                 Console.WriteLine($"{this.Name} moves to the {direction}.");
             }
@@ -287,7 +313,7 @@ namespace Antikythera
             Inventory.Remove(item);
             CurrentRoom.Objects.Add(item);
             Console.WriteLine($"You drop the {itemName} on the floor.");
-        } 
+        }
 
         public void DiscardItem(string itemName) // Removes from inventory and it doesn't exist anymore
         {
@@ -313,7 +339,7 @@ namespace Antikythera
                 return;
             }
 
-            Console.WriteLine("You have ");
+            Console.Write("You have ");
 
             for (int i = 0; i < Inventory.Count; i++)
             {
@@ -332,6 +358,57 @@ namespace Antikythera
                 else
                 { Console.WriteLine("."); }
             }
+        }
+
+        public void DisplayStatus() // Check Health, Mana, and Stamina
+        {
+            Console.WriteLine();
+            Console.WriteLine($"You're currently at {Program.player._health}/{Program.player.MaxHealth} HP.");
+
+            double healthPercentage = (double)Program.player._health / Program.player.MaxHealth;
+
+            if (healthPercentage == 1.0)
+            {
+                Console.WriteLine("You feel perfectly healthy.");
+            }
+            else if (healthPercentage >= 0.75)
+            {
+                Console.WriteLine("You're injured, but you feel okay.");
+            }
+            else if (healthPercentage >= 0.50)
+            {
+                Console.WriteLine("You're moderately injured.");
+            }
+            else if (healthPercentage >= 0.25)
+            {
+                Console.WriteLine("You're severely injured, you may not survive another encounter.");
+            }
+            else if (healthPercentage > 0)
+            {
+                Console.WriteLine("You're at death's door. Seek help.");
+            }
+            Console.WriteLine($"Mana: {INT + 10}/{INT + 10}");
+            Console.WriteLine();
+            Console.WriteLine($"CONSTITUTION: {CON}");
+            Console.WriteLine($"POWER: {POW}");
+            Console.WriteLine($"WILL: {WIL}");
+            Console.WriteLine($"STRENGTH: {STR}");
+            Console.WriteLine($"INTELLIGENCE: {INT}");
+            Console.WriteLine($"DEXTERITY: {DEX}");
+            Console.WriteLine($"PERCEPTION: {PER}");
+            Console.WriteLine();
+            Console.WriteLine("Combat Skills");
+            Console.WriteLine("********************************");
+            Console.WriteLine($"Damage Resistance: {DamageResist} (CON/3)");
+            Console.WriteLine($"Spell Damage Bonus: {WIL} (WIL)");
+            Console.WriteLine($"Current Weapon: {EquippedWeapon.Name}");
+            Console.WriteLine($"Weapon Damage Bonus: {EquippedWeapon.MinDamage}-{EquippedWeapon.MaxDamage}");
+            Console.WriteLine($"Physical Damage Type(s): {EquippedWeapon.DamageType}");
+            Console.WriteLine($"Physical Damage Bonus: {POW} (POWER)");
+            Console.WriteLine("********************************");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         public void EquipWeapon(string weaponName) // Remove from inventory and set equipped weapon
@@ -362,7 +439,7 @@ namespace Antikythera
                 Inventory.Remove(weapon);
             }
 
-        } 
+        }
 
         public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
         {
@@ -379,7 +456,9 @@ namespace Antikythera
                 return;
             }
 
-            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}!");
             Console.WriteLine();
             int _swing = EquippedWeapon.RollDamage();
             int _damage = POW + _swing - target.DamageResist;
@@ -396,50 +475,79 @@ namespace Antikythera
             {
                 target.Health = 0;
                 target.IsAlive = false;
-                target.Die(); // display "### has died!"
+                target.Die();
                 if (target.IsPlayer) { target.Respawn(); }
 
             }
-            
+
         }
 
         public async Task AttackPlayerAsync(Character attacker, Character player)
         {
-            // Wait for 3 seconds before the first attack
-            await Task.Delay(3000);
+            // Wait for 5 seconds before the first attack
+            await Task.Delay(5000);
 
             while (player.IsAlive && attacker.CurrentRoom == player.CurrentRoom)
             {
                 // Attack the player
                 attacker.Attack(player.Name);
 
-                // Wait for 2 seconds before attacking again
-                await Task.Delay(2000);
+                // Wait for 3 seconds before attacking again
+                await Task.Delay(3000);
             }
         }
-
 
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
             Console.WriteLine($"{Name} has died!");
             if (!(EquippedWeapon is Unarmed))
             {
-                Console.WriteLine($"Their {EquippedWeapon.Name} drops to the ground!");
                 CurrentRoom.Objects.Add(EquippedWeapon);
-                EquippedWeapon = new Unarmed();  // Ensure Unarmed is a valid class
-                Name = $"{Name}'s corpse";
+                Console.WriteLine($"Their {EquippedWeapon.Name} drops to the ground!");
+                EquippedWeapon = new Unarmed();
+                if (IsPlayer) { CurrentRoom.RemovePerson(this) ; }
+                if (!IsPlayer)
+                {
+                    Name = $"{Name}'s corpse";
+                }
             }
-            // Drop your equipped item on the ground and become a corpse
-            // Inventory is the only thing that stays the same
-        } 
+
+            if (IsPlayer)
+            {
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("*******************************");
+                Console.WriteLine();
+                Console.WriteLine("YOU HAVE DIED.");
+                Console.WriteLine();
+                Console.WriteLine("*******************************");
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.ReadLine();
+            }
+        }
 
         public void Respawn()
         {
-
+            Console.WriteLine("You can see the After-Sea. It is the color of the summer sky, enormous, gently churning.");
+            Console.WriteLine();
+            Console.WriteLine("This is where you're supposed to be. Your soul begs for entry into its welcoming warmth.");
+            Console.WriteLine();
+            Console.ReadLine();
+            Console.WriteLine("Anahata denies you. A freezing current grips your helpless form and sends you tumbling upwards, upwards, upwards, and then...");
+            Console.WriteLine();
+            Console.ReadLine();
             Console.WriteLine("You break through the surface of the grey, muddled water with a gasp.");
-            Console.WriteLine("You... died. But you're here again. Where the killing blow had landed still throbs painfully...");
-            Health += _baseHealth;
+            Console.WriteLine();
+            Console.WriteLine("You died again. But you're here again. Wherever here is.");
+            Console.WriteLine();
+            Console.WriteLine("Where the killing blow had landed on you, it still throbs painfully... it dawns on you that death is not an escape.");
+            Console.WriteLine();
+            Console.WriteLine("What do you do?");
+            Health += MaxHealth / 2;
             CurrentRoom = SpawnRoom;
+            CurrentRoom.AddPerson(Program.player);
             IsAlive = true;
         }
 
