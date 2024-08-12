@@ -17,6 +17,8 @@ class Program
     public static Character player = new Character();
     public static Character nemesis1 = new Character(); // Placeholder to be used later in the demo
     public static Character nemesis2 = new Character(); // These 2 nemeses will make the choices that the player doesn't
+    public static InputController inputController = new InputController();
+
     static void Main(string[] args)
     {
         Console.WriteLine("Welcome to the world of Antikythera!");
@@ -38,12 +40,21 @@ class Program
 
         Console.Clear();
 
-        if (command == "no") { StoryStart(); }
-        if (command == "yes") { Intro(); }
-        if (command == "fast") { FastStart(); }
+        if (command == "no")
+        {
+            StoryStart();
+        }
+        if (command == "yes")
+        {
+            Intro();
+        }
+        if (command == "fast")
+        {
+            FastStart();
+        }
 
         
-        
+
     }
 
     static void FastStart()
@@ -78,8 +89,8 @@ class Program
         Console.WriteLine("A soft, powerful voice echoes into your consciousness...");
         Console.WriteLine();
         Console.WriteLine("'Arise from the clay, my child. I will it.'");
-        Thread.Sleep(2000);
-        Console.WriteLine();
+        Console.ReadLine();
+        Console.Clear();
         Console.WriteLine("'I have done the work of carving your form. Now... you must form yourself.'");
         Console.WriteLine();
         Console.WriteLine("'Focus now. What is your name?' ");
@@ -169,8 +180,8 @@ class Program
         Console.WriteLine("You... are made of clay? You can see your body is not flesh.");
         Console.WriteLine();
         Console.WriteLine("You open your mouth to scream, but there is no mouth yet. Your face splits and contorts into pained existence. There is no voice yet.");
-        Console.WriteLine("");
-        Console.WriteLine("");
+        Console.ReadLine();
+        Console.Clear();
         Console.WriteLine("'Shhh... you are becoming. Focus on my voice, my child.'");
         Console.WriteLine("");
         Console.WriteLine("'You are almost complete... you need only to accept the spark of life.'");
@@ -239,7 +250,10 @@ class Program
         // Depending on which combat class the player takes, the nemeses will adopt their own
         if (command == "brujadha")
         {
-            Console.WriteLine("The fabric of the universe feels pliable under your fingertips.");
+            Console.Clear();
+            Console.WriteLine("To be a brujadha... The fabric of the universe feels pliable under your fingertips.");
+            Console.WriteLine();
+            Console.WriteLine("You... need only to pull.");
             Console.WriteLine();
             Brujadha player = new Brujadha(Program.player);
             Brujadha nemesis1 = new Brujadha(Program.nemesis1);
@@ -359,6 +373,7 @@ class Program
         StoryStart();
     }
 
+
     static void InitializeGame()
     {
         // Instantiate the starting room: The Clay Pits
@@ -401,6 +416,9 @@ class Program
         player.SpawnRoom = clayPits;
         player.IsPlayer = true; // Ensure the Respawn method will work ONLY for the player
 
+        Weapon pickaxe1 = new Pickaxe();
+        nemesis1.EquippedWeapon = pickaxe1;
+
         nemesis1.CurrentRoom = coldTunnel;
         coldTunnel.AddPerson(nemesis1); // Add to the People list in coldTunnel
 
@@ -414,26 +432,23 @@ class Program
         Console.WriteLine("Coughing, retching, shivering, you shakily get to your feet.");
         Console.WriteLine("");
         Console.WriteLine("You wipe the last of the muck from your hands and face. You can now open your eyes and LOOK around.");
-        Console.ReadLine();
 
-        InputController inputController = new InputController();
-
-        bool play = true;
-
-        while (play)
-        {
-            inputController.GetCommand();
-
-            
-            play= false;
-        }
-
-        Console.WriteLine("Thank you for playing!");
-        Console.ReadLine();
-
+        StartGame();
         // The guided narrative portion is now over. The player can act freely and interact with the world
 
 
+    }
+
+    static void StartGame()
+    {
+        bool IsPlaying = true;
+
+        while (IsPlaying)
+        {
+            inputController.GetCommand();
+        }
+
+        Console.ReadLine();
     }
 }
 

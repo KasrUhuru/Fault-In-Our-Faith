@@ -9,20 +9,16 @@ namespace Antikythera
     public abstract class Enemy : Character
     {
 
-        public void EnemyAttack(Enemy attacker, Character target)
+        public void EnemyAttack(Character target)
         {
             // Stop dead character from fighting back
-            if (!attacker.IsAlive) { return; }
+            if (!IsAlive) { return; }
             // Stop non-adjacent characters from attacking each other
-            if (attacker.CurrentRoom != target.CurrentRoom)
-            {
-                Console.WriteLine($"You don't see {target.Name} here!");
-                return;
-            }
+            if (CurrentRoom != target.CurrentRoom) { return; }
 
-            Console.WriteLine($"{attacker.Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
-            int _swing = attacker.EquippedWeapon.RollDamage();
-            int _damage = attacker.POW + _swing - target.DamageResist;
+            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}...");
+            int _swing = EquippedWeapon.RollDamage();
+            int _damage = POW + _swing - target.DamageResist;
 
             if (_damage < 0) { _damage = 1; }
 

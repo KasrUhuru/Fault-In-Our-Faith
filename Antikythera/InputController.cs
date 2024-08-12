@@ -18,11 +18,11 @@ namespace Antikythera
                                         "southwest", "sw",
                                         "west", "w",
                                         "northwest", "nw",
-                                        "up", "down", "in", "out"}
+                                        "up", "down", "in", "out"};
 
         public void GetCommand()
         {
-            Console.WriteLine("What do you do?");
+            Console.WriteLine();
             PlayerInput = Console.ReadLine().ToLower();
             ValidateCommand(PlayerInput);
         }
@@ -30,9 +30,7 @@ namespace Antikythera
         public void ValidateCommand(string playerInput)
         {
             if (string.IsNullOrEmpty(playerInput))
-            {
-                GetCommand();
-            }
+            { GetCommand(); }
             else { ProcessCommand(playerInput); }
         }
 
@@ -40,13 +38,18 @@ namespace Antikythera
         {
             string[] words = playerInput.Split(' ');
 
-            switch (words)
+            switch (words[0].ToLower())
             {
-                case words[0] == "look":
+                case "look":
                     Program.player.Look();
                     break;
-                case words[0] == "go":
-                    if (cardinalDirections.Contains(words[1])
+                case "go":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Try again with a cardinal direction, such as GO NORTH or GO N.");
+                        break;
+                    }    
+                    if (cardinalDirections.Contains(words[1]))
                     {
                         Program.player.Move(words[1]);
                     }
@@ -55,12 +58,53 @@ namespace Antikythera
                         Console.WriteLine("Try again with a cardinal direction, such as GO NORTH or GO N.");
                     }
                     break;
-                case words[0] == "attack":
-                    Program.player.Attack(words[1])
+                case "attack":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Attack what? Ensure you type the full name as you see it.");
+                        break;
+                    }
+                        Program.player.Attack(words[1]);
+                    break;
+                case "get":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Get what?");
+                        break;
+                    }
+                    Program.player.GetItem(words[1]);
+                    break;
+                case "drop":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Drop what?");
+                        break;
+                    }
+                    Program.player.DropItem(words[1]);
+                    break;
+                case "discard":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Discard what? Check your inventory.");
+                        break;
+                    }
+                    Program.player.DiscardItem(words[1]);
+                    break;
+                case "inventory":
+                    Program.player.DisplayInventory();
+                    break;
+                case "equip":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Equip what? Check your inventory.");
+                        break;
+                    }
+                    Program.player.EquipWeapon(words[1]);
+                    break;
 
             }
 
-        GetCommand();
+            GetCommand();
         }
     }
 }
