@@ -369,6 +369,9 @@ namespace Antikythera
             // Convert from string user input to Character object reference
             Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
 
+            // Stop dead character from fighting back
+            if (!IsAlive) { return; }
+
             // Stop non-adjacent characters from attacking each other
             if (target == null)
             {
