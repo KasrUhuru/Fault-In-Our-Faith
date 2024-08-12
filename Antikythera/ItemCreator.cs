@@ -30,7 +30,7 @@ namespace Antikythera
             return random.Next(MinDamage, MaxDamage + 1);
         }
     }
-        public class Spear : Weapon
+        public class Pickaxe : Weapon
         {
             public Pickaxe()
             {
@@ -52,7 +52,7 @@ namespace Antikythera
             }
         }
 
-        public class Sickle : Weapon
+        public class Shovel : Weapon
         {
             public Shovel()
             {

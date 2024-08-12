@@ -121,7 +121,7 @@ class Program
         Console.WriteLine();
         Console.WriteLine($"'You are a raindrop in a storm, {player.Name}. An eternity precedes you, and an eternity shall succeed you.'");
         Console.WriteLine();
-        Console.WriteLine("'Three of my children still walk freely under the sun.'");
+        Console.WriteLine("'Three of my children still walk freely under the sun. You must decide which lineage is yours.'");
         Console.WriteLine();
         Console.WriteLine();
         Console.WriteLine($"'Are you HUMAN, {player.Name}? The most mischievous of my children, forever bent unto the unknown?'");
@@ -414,6 +414,21 @@ class Program
         Console.WriteLine("Coughing, retching, shivering, you shakily get to your feet.");
         Console.WriteLine("");
         Console.WriteLine("You wipe the last of the muck from your hands and face. You can now open your eyes and LOOK around.");
+        Console.ReadLine();
+
+        InputController inputController = new InputController();
+
+        bool play = true;
+
+        while (play)
+        {
+            inputController.GetCommand();
+
+            
+            play= false;
+        }
+
+        Console.WriteLine("Thank you for playing!");
         Console.ReadLine();
 
         // The guided narrative portion is now over. The player can act freely and interact with the world

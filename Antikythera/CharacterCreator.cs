@@ -213,6 +213,8 @@ namespace Antikythera
             }
         }
 
+        public void Examine() // Display 
+
         public void Move(string direction) // Move from one room to the other
         {
             if (!CurrentRoom.Exits.Keys.Contains(direction))
