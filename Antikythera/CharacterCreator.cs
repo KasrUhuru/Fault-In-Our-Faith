@@ -169,7 +169,7 @@ namespace Antikythera
 
             else if (CurrentRoom.Objects.Count == 1)
             {
-                Console.WriteLine($"a {CurrentRoom.Objects[0]} here.");
+                Console.WriteLine($"a {CurrentRoom.Objects[0].Name} here.");
             }
 
             else
@@ -236,6 +236,16 @@ namespace Antikythera
                 Look();
             }
 
+            // Check for non-player characters or enemies in the room
+            foreach (var character in CurrentRoom.People)
+            {
+                if (!character.IsPlayer)
+                {
+                    // Start the asynchronous attack task
+                    Task.Run(() => character.AttackPlayerAsync(character, this));
+                }
+            }
+
             if (!IsPlayer && (this.CurrentRoom == Program.player.CurrentRoom) ) // Prevent movement from outside NPCs to generate feedback text
             {
                 Console.WriteLine($"{this.Name} moves to the {direction}.");
@@ -245,7 +255,9 @@ namespace Antikythera
 
         public void GetItem(string itemName) // Room item goes straight to inventory, but future method will send it to hands 
         {
-            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+
 
             if (item == null)
             {
@@ -300,6 +312,8 @@ namespace Antikythera
                 Console.WriteLine("Your inventory is empty.");
                 return;
             }
+
+            Console.WriteLine("You have ");
 
             for (int i = 0; i < Inventory.Count; i++)
             {
@@ -371,7 +385,7 @@ namespace Antikythera
             Console.WriteLine();
 
             if (_damage < 0) { _damage = 1; }
-            Console.WriteLine($"{Name} deals {_damage} to {target.Name}!");
+            Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {target.Name}!");
 
             target.Health -= _damage;
 
@@ -384,7 +398,23 @@ namespace Antikythera
 
             }
             
-        } 
+        }
+
+        public async Task AttackPlayerAsync(Character attacker, Character player)
+        {
+            // Wait for 3 seconds before the first attack
+            await Task.Delay(3000);
+
+            while (player.IsAlive && attacker.CurrentRoom == player.CurrentRoom)
+            {
+                // Attack the player
+                attacker.Attack(player.Name);
+
+                // Wait for 2 seconds before attacking again
+                await Task.Delay(2000);
+            }
+        }
+
 
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {

@@ -34,10 +34,10 @@ namespace Antikythera
         {
             public Pickaxe()
             {
-                string Name = "pickaxe";
-                string DamageType = "pierce";
-                int MinDamage = 2;
-                int MaxDamage = 4;
+                this.Name = "pickaxe";
+                this.DamageType = "pierce";
+                this.MinDamage = 2;
+                this.MaxDamage = 4;
             }
         }
 
@@ -45,10 +45,10 @@ namespace Antikythera
         {
             public Hammer()
             {
-                string Name = "hammer";
-                string DamageType = "blunt";
-                int MinDamage = 1;
-                int MaxDamage = 3;
+                this.Name = "hammer";
+                this.DamageType = "blunt";
+                this.MinDamage = 1;
+                this.MaxDamage = 3;
             }
         }
 
@@ -56,10 +56,10 @@ namespace Antikythera
         {
             public Shovel()
             {
-                string Name = "shovel";
-                string DamageType = "cut";
-                int MinDamage = 1;
-                int MaxDamage = 4;
+                this.Name = "shovel";
+                this.DamageType = "cut";
+                this.MinDamage = 1;
+                this.MaxDamage = 4;
             }
         }
 
@@ -67,10 +67,10 @@ namespace Antikythera
         {
             public Unarmed()
             {
-                string Name = "fists";
-                string DamageType = "blunt";
-                int MinDamage = 1;
-                int MaxDamage = 2;
+                this.Name = "fists";
+                this.DamageType = "blunt";
+                this.MinDamage = 1;
+                this.MaxDamage = 2;
             }
         }
 

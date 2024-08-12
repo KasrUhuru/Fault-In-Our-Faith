@@ -412,6 +412,8 @@ class Program
 
         player.CurrentRoom = clayPits;
         clayPits.AddPerson(player); // Add player to the People list in clayPits
+        Weapon hammer1 = new Hammer();
+        clayPits.AddItem(hammer1);
 
         player.SpawnRoom = clayPits;
         player.IsPlayer = true; // Ensure the Respawn method will work ONLY for the player
@@ -448,6 +450,7 @@ class Program
             inputController.GetCommand();
         }
 
+        Console.WriteLine("Thank you for playing my demo!");
         Console.ReadLine();
     }
 }
