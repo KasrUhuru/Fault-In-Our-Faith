@@ -427,7 +427,9 @@ class Program
         player.IsPlayer = true; // Ensure the Respawn method will work ONLY for the player
 
         Weapon pickaxe1 = new Pickaxe();
+        Weapon shovel1 = new Shovel();
         nemesis1.EquippedWeapon = pickaxe1;
+        nemesis2.EquippedWeapon = shovel1;
 
         nemesis1.CurrentRoom = coldTunnel;
         coldTunnel.AddPerson(nemesis1); // Add to the People list in coldTunnel

@@ -220,6 +220,7 @@ namespace Antikythera
             else
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
         }
+
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
             Console.WriteLine($"{Name} has died!");
