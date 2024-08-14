@@ -17,6 +17,10 @@ namespace Antikythera
         public string Description { get; set; }
         public Room CurrentRoom { get; set; }
         public Room SpawnRoom { get; set; }
+        public Weapon EquippedWeapon { get; set; } = new Unarmed();
+        public List<Item> Inventory { get; set; } = new List<Item>();
+        public List<Spell> SpellList { get; set; } = new List<Spell>();
+        public Character Target { get; set; } = new Character();
 
         /// <summary>
         /// Attributes
@@ -90,11 +94,7 @@ namespace Antikythera
             set { _defense = value; }
         }
 
-        public Weapon EquippedWeapon { get; set; } = new Unarmed();
-
-        public List<Item> Inventory { get; set; } = new List<Item>();
-        public List<Spell> SpellList { get; set; } = new List<Spell>();
-        public Character Target { get; set; } = new Character();
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Character"/> class.
