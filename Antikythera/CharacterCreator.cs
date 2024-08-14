@@ -98,12 +98,13 @@ namespace Antikythera
         /// </summary>
         public Character()
         {
-            EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
             UpdateHealth();
-            MaxHealth = Health;
             UpdateDefense();
+
             this.Description = $"You see a {Species}.";
-            IsPlayer = false;
+            this.IsPlayer = false;
+            this.EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
+            this.MaxHealth = Health;
         }
 
         // The character can now equip weapons to increase damage output
@@ -128,6 +129,287 @@ namespace Antikythera
             Defense = _baseDefense + DEX;
         }
 
+        public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
+        {
+            // Convert from string user input to Character object reference
+            Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
+
+            // Stop dead character from fighting back
+            if (!IsAlive) { return; }
+
+            // Stop non-adjacent characters from attacking each other
+            if (target == null)
+            {
+                Console.WriteLine($"You don't see a {targetName} here!");
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}!");
+            Console.WriteLine();
+            int _swing = EquippedWeapon.RollDamage();
+            int _damage = POW + _swing - target.DamageResist;
+
+            Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {target.DamageResist} (Damage Resistance)");
+            Console.WriteLine();
+
+            if (_damage < 0) { _damage = 1; }
+            Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {target.Name}!");
+
+            target.Health -= _damage;
+
+            if (target.Health <= 0)
+            {
+                target.Health = 0;
+                target.IsAlive = false;
+                target.Die();
+                if (target.IsPlayer) { target.Respawn(); }
+
+            }
+
+        }
+        public async Task AttackPlayerAsync(Character attacker, Character player)
+        {
+            // Wait for 5 seconds before the first attack
+            await Task.Delay(5000);
+
+            while (player.IsAlive && attacker.CurrentRoom == player.CurrentRoom)
+            {
+                // Attack the player
+                attacker.Attack(player.Name);
+
+                // Wait for 3 seconds before attacking again
+                await Task.Delay(3000);
+            }
+        }
+        public void Die() // Convert a Character into a Corpse object and drop equipped weapon
+        {
+            Console.WriteLine($"{Name} has died!");
+            if (!(EquippedWeapon is Unarmed))
+            {
+                CurrentRoom.Objects.Add(EquippedWeapon);
+                Console.WriteLine($"Their {EquippedWeapon.Name} drops to the ground!");
+                EquippedWeapon = new Unarmed();
+                if (IsPlayer) { CurrentRoom.RemovePerson(this) ; }
+                if (!IsPlayer)
+                {
+                    Name = $"{Name}'s corpse";
+                }
+            }
+
+            if (IsPlayer)
+            {
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("*******************************");
+                Console.WriteLine();
+                Console.WriteLine("YOU HAVE DIED.");
+                Console.WriteLine();
+                Console.WriteLine("*******************************");
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.ReadLine();
+            }
+        }
+        public void DisplayInventory() // Check contents of inventory
+        {
+            Console.WriteLine("You check your inventory...");
+
+            if (Inventory.Count == 0)
+            {
+                Console.WriteLine("Your inventory is empty.");
+                return;
+            }
+
+            Console.Write("You have ");
+
+            for (int i = 0; i < Inventory.Count; i++)
+            {
+                Item item = Inventory[i];
+
+                if (i == Inventory.Count - 1 && Inventory.Count > 1)
+                {
+                    // For the last item in a list of more than one item, use "and" before the item name
+                    Console.Write("and ");
+                }
+
+                Console.Write($"a {item.Name}");
+
+                if (i < Inventory.Count - 1)
+                { Console.Write(", "); }
+                else
+                { Console.WriteLine("."); }
+            }
+        }
+        public void DiscardItem(string itemName) // Removes from inventory and it doesn't exist anymore
+        {
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine("You don't have that in your inventory.");
+                return;
+            }
+
+            Inventory.Remove(item);
+            Console.WriteLine($"You toss the {itemName} from your inventory.");
+        }
+        public void DisplayStatus() // Check Health, Mana, and Stamina
+        {
+            Console.WriteLine();
+            Console.WriteLine($"You're currently at {Program.player._health}/{Program.player.MaxHealth} HP.");
+
+            double healthPercentage = (double)Program.player._health / Program.player.MaxHealth;
+
+            if (healthPercentage == 1.0)
+            {
+                Console.WriteLine("You feel perfectly healthy.");
+            }
+            else if (healthPercentage >= 0.75)
+            {
+                Console.WriteLine("You're injured, but you feel okay.");
+            }
+            else if (healthPercentage >= 0.50)
+            {
+                Console.WriteLine("You're moderately injured.");
+            }
+            else if (healthPercentage >= 0.25)
+            {
+                Console.WriteLine("You're severely injured, you may not survive another encounter.");
+            }
+            else if (healthPercentage > 0)
+            {
+                Console.WriteLine("You're at death's door. Seek help.");
+            }
+            Console.WriteLine($"Mana: {INT + 10}/{INT + 10}");
+            Console.WriteLine();
+            Console.WriteLine($"CONSTITUTION: {CON}");
+            Console.WriteLine($"POWER: {POW}");
+            Console.WriteLine($"WILL: {WIL}");
+            Console.WriteLine($"STRENGTH: {STR}");
+            Console.WriteLine($"INTELLIGENCE: {INT}");
+            Console.WriteLine($"DEXTERITY: {DEX}");
+            Console.WriteLine($"PERCEPTION: {PER}");
+            Console.WriteLine();
+            Console.WriteLine("Combat Skills");
+            Console.WriteLine("********************************");
+            Console.WriteLine($"Damage Resistance: {DamageResist} (CON/3)");
+            Console.WriteLine($"Spell Damage Bonus: {WIL} (WIL)");
+            Console.WriteLine($"Current Weapon: {EquippedWeapon.Name}");
+            Console.WriteLine($"Weapon Damage Bonus: {EquippedWeapon.MinDamage}-{EquippedWeapon.MaxDamage}");
+            Console.WriteLine($"Physical Damage Type(s): {EquippedWeapon.DamageType}");
+            Console.WriteLine($"Physical Damage Bonus: {POW} (POWER)");
+            Console.WriteLine("********************************");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+        }
+        public void DropItem(string itemName) // Removes from inventory and adds to the room
+        {
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine($"You don't have that in your possession.");
+                return;
+            }
+
+            // Populate the room's Objects list with the dropped item
+            Inventory.Remove(item);
+            CurrentRoom.Objects.Add(item);
+            Console.WriteLine($"You drop the {itemName} on the floor.");
+        }
+        public void EquipWeapon(string weaponName) // Remove from inventory and set equipped weapon
+        {
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null || !(item is Weapon))
+            {
+                Console.WriteLine($"You don't have a {weaponName} in your inventory.");
+                return;
+            }
+
+            Weapon weapon = item as Weapon;
+
+            if (EquippedWeapon.Name == "fists")
+            {
+                EquippedWeapon = weapon;
+                Console.WriteLine($"You equip the {weapon.Name}.");
+                Inventory.Remove(weapon);
+            }
+
+            else
+            {
+                Inventory.Add(EquippedWeapon);
+                Console.WriteLine($"You unequip the {EquippedWeapon.Name}.");
+                EquippedWeapon = weapon;
+                Console.WriteLine($"You equip the {weapon.Name}.");
+                Inventory.Remove(weapon);
+            }
+
+        }
+        public void GetItem(string itemName) // Room item goes straight to inventory, but future method will send it to hands 
+        {
+            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine($"You don't see any {itemName} here.");
+                return;
+            }
+
+            if (item is RoomFixture roomfixture)
+            {
+                Console.WriteLine($"You can't pick up the {roomfixture.Name}.");
+                return;
+            }
+
+            // Remove from the room and create in your inventory
+            CurrentRoom.RemoveItem(item);
+            Console.WriteLine($"You pick up the {itemName}.");
+
+            // Add the item to your inventory
+            Inventory.Add(item);
+        }
+        public void ExamineRoom(string target) // Display the description of an Item or Character
+        {
+            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null && character == null)
+            {
+                Console.WriteLine($"You don't see any {target} here.\nYou can use EXAMINE MY \"{target.ToUpper()}\" ");
+                return;
+            }
+
+            else if (item == null && character != null)
+            {
+                Console.WriteLine(character.Description);
+                return;
+            }
+
+            else if (item != null && character == null)
+            {
+                Console.WriteLine(item.Description);
+                return;
+            }
+
+        }
+        public void ExamineMine(string target)
+        {
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine($"You don't have that in your possession.");
+                return;
+            }
+
+            Console.WriteLine(item.Description);
+        }
         public void Look() // Display the obvious people and objects in the room
         {
             Console.WriteLine("You look around the room...");
@@ -219,34 +501,6 @@ namespace Antikythera
                 { Console.WriteLine("."); }
             }
         }
-
-        public void Examine(string target)
-        {
-            // Display the description of an Item or Character
-            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
-
-            Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
-
-            if (item == null && character == null)
-            {
-                Console.WriteLine($"You don't see any {target} here.");
-                return;
-            }
-
-            else if (item == null && character != null)
-            {
-                Console.WriteLine(character.Description);
-                return;
-            }
-
-            else if (item != null && character == null)
-            {
-                Console.WriteLine(item.Description);
-                return;
-            }
-
-        } // Get a quick description of whatever you're looking at
-
         public void Move(string direction) // Move from one room to the other
         {
             if (!CurrentRoom.Exits.Keys.Contains(direction))
@@ -278,259 +532,10 @@ namespace Antikythera
             }
 
         }
+        public void Respawn() // The player returns to their designated SpawnRoom
 
-        public void GetItem(string itemName) // Room item goes straight to inventory, but future method will send it to hands 
         {
-            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-
-
-
-            if (item == null)
-            {
-                Console.WriteLine($"You don't see any {itemName} here.");
-                return;
-            }
-
-            // Remove from the room and create in your inventory
-            CurrentRoom.RemoveItem(item);
-            Console.WriteLine($"You pick up the {itemName}.");
-
-            // Add the item to your inventory
-            Inventory.Add(item);
-        }
-
-        public void DropItem(string itemName) // Removes from inventory and adds to the room
-        {
-            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-
-            if (item == null)
-            {
-                Console.WriteLine($"You don't have that in your possession.");
-                return;
-            }
-
-            // Populate the room's Objects list with the dropped item
-            Inventory.Remove(item);
-            CurrentRoom.Objects.Add(item);
-            Console.WriteLine($"You drop the {itemName} on the floor.");
-        }
-
-        public void DiscardItem(string itemName) // Removes from inventory and it doesn't exist anymore
-        {
-            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-
-            if (item == null)
-            {
-                Console.WriteLine("You don't have that in your inventory.");
-                return;
-            }
-
-            Inventory.Remove(item);
-            Console.WriteLine($"You toss the {itemName} from your inventory.");
-        }
-
-        public void DisplayInventory() // Check contents of inventory
-        {
-            Console.WriteLine("You check your inventory...");
-
-            if (Inventory.Count == 0)
-            {
-                Console.WriteLine("Your inventory is empty.");
-                return;
-            }
-
-            Console.Write("You have ");
-
-            for (int i = 0; i < Inventory.Count; i++)
-            {
-                Item item = Inventory[i];
-
-                if (i == Inventory.Count - 1 && Inventory.Count > 1)
-                {
-                    // For the last item in a list of more than one item, use "and" before the item name
-                    Console.Write("and ");
-                }
-
-                Console.Write($"a {item.Name}");
-
-                if (i < Inventory.Count - 1)
-                { Console.Write(", "); }
-                else
-                { Console.WriteLine("."); }
-            }
-        }
-
-        public void DisplayStatus() // Check Health, Mana, and Stamina
-        {
-            Console.WriteLine();
-            Console.WriteLine($"You're currently at {Program.player._health}/{Program.player.MaxHealth} HP.");
-
-            double healthPercentage = (double)Program.player._health / Program.player.MaxHealth;
-
-            if (healthPercentage == 1.0)
-            {
-                Console.WriteLine("You feel perfectly healthy.");
-            }
-            else if (healthPercentage >= 0.75)
-            {
-                Console.WriteLine("You're injured, but you feel okay.");
-            }
-            else if (healthPercentage >= 0.50)
-            {
-                Console.WriteLine("You're moderately injured.");
-            }
-            else if (healthPercentage >= 0.25)
-            {
-                Console.WriteLine("You're severely injured, you may not survive another encounter.");
-            }
-            else if (healthPercentage > 0)
-            {
-                Console.WriteLine("You're at death's door. Seek help.");
-            }
-            Console.WriteLine($"Mana: {INT + 10}/{INT + 10}");
-            Console.WriteLine();
-            Console.WriteLine($"CONSTITUTION: {CON}");
-            Console.WriteLine($"POWER: {POW}");
-            Console.WriteLine($"WILL: {WIL}");
-            Console.WriteLine($"STRENGTH: {STR}");
-            Console.WriteLine($"INTELLIGENCE: {INT}");
-            Console.WriteLine($"DEXTERITY: {DEX}");
-            Console.WriteLine($"PERCEPTION: {PER}");
-            Console.WriteLine();
-            Console.WriteLine("Combat Skills");
-            Console.WriteLine("********************************");
-            Console.WriteLine($"Damage Resistance: {DamageResist} (CON/3)");
-            Console.WriteLine($"Spell Damage Bonus: {WIL} (WIL)");
-            Console.WriteLine($"Current Weapon: {EquippedWeapon.Name}");
-            Console.WriteLine($"Weapon Damage Bonus: {EquippedWeapon.MinDamage}-{EquippedWeapon.MaxDamage}");
-            Console.WriteLine($"Physical Damage Type(s): {EquippedWeapon.DamageType}");
-            Console.WriteLine($"Physical Damage Bonus: {POW} (POWER)");
-            Console.WriteLine("********************************");
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine();
-        }
-
-        public void EquipWeapon(string weaponName) // Remove from inventory and set equipped weapon
-        {
-            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(weaponName, StringComparison.OrdinalIgnoreCase));
-
-            if (item == null || !(item is Weapon))
-            {
-                Console.WriteLine($"You don't have a {weaponName} in your inventory.");
-                return;
-            }
-
-            Weapon weapon = item as Weapon;
-
-            if (EquippedWeapon.Name == "fists")
-            {
-                EquippedWeapon = weapon;
-                Console.WriteLine($"You equip the {weapon.Name}.");
-                Inventory.Remove(weapon);
-            }
-
-            else
-            {
-                Inventory.Add(EquippedWeapon);
-                Console.WriteLine($"You unequip the {EquippedWeapon.Name}.");
-                EquippedWeapon = weapon;
-                Console.WriteLine($"You equip the {weapon.Name}.");
-                Inventory.Remove(weapon);
-            }
-
-        }
-
-        public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
-        {
-            // Convert from string user input to Character object reference
-            Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
-
-            // Stop dead character from fighting back
-            if (!IsAlive) { return; }
-
-            // Stop non-adjacent characters from attacking each other
-            if (target == null)
-            {
-                Console.WriteLine($"You don't see a {targetName} here!");
-                return;
-            }
-
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}!");
-            Console.WriteLine();
-            int _swing = EquippedWeapon.RollDamage();
-            int _damage = POW + _swing - target.DamageResist;
-
-            Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {target.DamageResist} (Damage Resistance)");
-            Console.WriteLine();
-
-            if (_damage < 0) { _damage = 1; }
-            Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {target.Name}!");
-
-            target.Health -= _damage;
-
-            if (target.Health <= 0)
-            {
-                target.Health = 0;
-                target.IsAlive = false;
-                target.Die();
-                if (target.IsPlayer) { target.Respawn(); }
-
-            }
-
-        }
-
-        public async Task AttackPlayerAsync(Character attacker, Character player)
-        {
-            // Wait for 5 seconds before the first attack
-            await Task.Delay(5000);
-
-            while (player.IsAlive && attacker.CurrentRoom == player.CurrentRoom)
-            {
-                // Attack the player
-                attacker.Attack(player.Name);
-
-                // Wait for 3 seconds before attacking again
-                await Task.Delay(3000);
-            }
-        }
-
-        public void Die() // Convert a Character into a Corpse object and drop equipped weapon
-        {
-            Console.WriteLine($"{Name} has died!");
-            if (!(EquippedWeapon is Unarmed))
-            {
-                CurrentRoom.Objects.Add(EquippedWeapon);
-                Console.WriteLine($"Their {EquippedWeapon.Name} drops to the ground!");
-                EquippedWeapon = new Unarmed();
-                if (IsPlayer) { CurrentRoom.RemovePerson(this) ; }
-                if (!IsPlayer)
-                {
-                    Name = $"{Name}'s corpse";
-                }
-            }
-
-            if (IsPlayer)
-            {
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-                Console.WriteLine();
-                Console.WriteLine("YOU HAVE DIED.");
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.ReadLine();
-            }
-        }
-
-        public void Respawn()
-        {
-            Console.WriteLine("You can see the After-Sea. It is the color of the summer sky, enormous, gently churning.");
+            Console.WriteLine("You can see the After-Sea. It is the color of the summer sky. It's... enormous, and yet it churns gently.");
             Console.WriteLine();
             Console.WriteLine("This is where you're supposed to be. Your soul begs for entry into its welcoming warmth.");
             Console.WriteLine();
@@ -542,13 +547,53 @@ namespace Antikythera
             Console.WriteLine();
             Console.WriteLine("You died again. But you're here again. Wherever here is.");
             Console.WriteLine();
-            Console.WriteLine("Where the killing blow had landed on you, it still throbs painfully... it dawns on you that death is not an escape.");
+            Console.WriteLine("Where the killing blow had landed on you, it still throbs painfully...\n\nIt dawns on you that death is not an escape.");
             Console.WriteLine();
             Console.WriteLine("What do you do?");
             Health += MaxHealth / 2;
             CurrentRoom = SpawnRoom;
             CurrentRoom.AddPerson(Program.player);
             IsAlive = true;
+        } 
+        public void UseRoom(string itemName) // Character activates an item in the room
+        {
+            Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine($"You don't see any {itemName} here.");
+                return;
+            }
+
+            if (item is HealingFixture healingFixture)
+            {
+                Console.WriteLine(healingFixture.UseText);
+                healingFixture.FullHeal(this);
+                Console.WriteLine(healingFixture.EffectText);
+            }
+        }
+        public void UseMine(string itemName) // Character activates an item from their inventory 
+        {
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null)
+            {
+                Console.WriteLine($"You don't have that in your possession.");
+                return;
+            }
+
+            if (item is Consumable consumable)
+            {
+            // FIXME: item.ProduceEffect(this);
+            Console.WriteLine($"You consume the {item.Name}... you can't tell if it did anything.");
+            Inventory.Remove(item);
+            }
+            else
+            {
+                Console.WriteLine("This can't be consumed.");
+                return;
+            }
+
         }
 
     }

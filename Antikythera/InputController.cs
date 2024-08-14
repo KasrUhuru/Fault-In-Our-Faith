@@ -83,8 +83,16 @@ namespace Antikythera
                         Console.WriteLine("Examine what? Check your inventory.");
                         break;
                     }
-                    target = string.Join(' ', words.Skip(1));
-                    Program.player.Examine(target);
+                    if (words[1] == "my")
+                    {
+                        target = string.Join(' ', words.Skip(2));
+                        Program.player.ExamineMine(target);
+                    }
+                    else
+                    {
+                        target = string.Join(' ', words.Skip(1));
+                        Program.player.ExamineRoom(target);
+                    }
                     break;
                 case "get":
                     if (words.Length < 2)
@@ -92,7 +100,8 @@ namespace Antikythera
                         Console.WriteLine("Get what?");
                         break;
                     }
-                    Program.player.GetItem(words[1]);
+                    target = string.Join(' ', words.Skip(1));
+                    Program.player.GetItem(target);
                     break;
                 case "go":
                     if (words.Length < 2)
@@ -121,6 +130,23 @@ namespace Antikythera
                 case "status":
                     Program.player.DisplayStatus();
                     break;
+                case "use":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Use what? You can say USE <item> for an object in the room, or USE MY <item> for an object in your inventory.");
+                        break;
+                    }
+                    if (words[1] == "my")
+                    {
+                        target = string.Join(' ', words.Skip(2));
+                        Program.player.UseMine(target);
+                    }
+                    else
+                    {
+                        target = string.Join(' ', words.Skip(1));
+                        Program.player.UseRoom(target);
+                    }
+                    break;
                 default:
                     Console.WriteLine("I didn't understand that. Type COMMANDS for a list of possible commands you can try.");
                     break;
@@ -137,7 +163,7 @@ namespace Antikythera
             Console.WriteLine("ATTACK: Use your equipped weapon to swing at a target enemy.");
             Console.WriteLine("Syntax: attack <target>");
             Console.WriteLine();
-            Console.WriteLine("DISCARD: Toss away an item from your inventory. Warning: this destroys the object and it doesn't come back.");
+            Console.WriteLine("DISCARD: Toss away an item from your inventory. Warning: this destroys the object and it doesn't come back!");
             Console.WriteLine("Syntax: discard <item>");
             Console.WriteLine();
             Console.WriteLine("DROP: Transfer an object from your inventory into the current room.");
@@ -147,7 +173,7 @@ namespace Antikythera
             Console.WriteLine("Syntax: equip <item>");
             Console.WriteLine();
             Console.WriteLine("EXAMINE: Get a quick description of someone or something. Works with items and characters.");
-            Console.WriteLine("Syntax: examine <target>");
+            Console.WriteLine("Syntax: examine my <target> for inventory, OR examine <target> in");
             Console.WriteLine();
             Console.WriteLine("GET: Pick up an item you see.");
             Console.WriteLine("Syntax: get <item>");
@@ -163,6 +189,9 @@ namespace Antikythera
             Console.WriteLine();
             Console.WriteLine("STATUS: List all information about your character.");
             Console.WriteLine("Syntax: status");
+            Console.WriteLine();
+            Console.WriteLine("USE: Activate an item in the room or your inventory.");
+            Console.WriteLine("Syntax: use my <item> for inventory, OR use <item> for room");
         }
     }
 }

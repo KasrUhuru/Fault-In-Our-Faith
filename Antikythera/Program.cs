@@ -389,17 +389,13 @@ class Program
 
         Room clayPits = new Room("R001",
                                 "Clay Pits",
-                                "The sounds of rushing water echoes through this room from an unseen source. " +
-                                "The sun struggles to reach the bottom of this pit, whose lip is many meters below the surface. " +
-                                "If there were ever ladders or steps built into this place, there's no sign of them. " +
-                                "Broken wood and cloth scraps are barely visible in the slick muck. This place looks abandoned. "
+                                "The sounds of rushing water echoes through this room from an unseen source.\nThe sun struggles to reach the bottom of this pit, whose lip is many meters below the surface.\nIf there were ever ladders or steps built into this place, there's no sign of them.\nBroken wood and cloth scraps are barely visible in the slick muck. This place looks abandoned. "
                                 );
 
 
         Room coldTunnel = new Room("R002",
                                 "Cold Tunnel",
-                                "The sound of rushing water is louder here, and the air is frigid. " +
-                                "The only sources of light are far behind and far ahead. You can barely see in here. ",
+                                "The sound of rushing water is louder here, and the air is frigid.\nThe only sources of light are far behind and far ahead. You can barely see in here. ",
                                 "Dozens of faces and limbs silently roil in the walls, as if trying to break through. " +
                                 "You can't help but wonder if this had been you only moments before."
                                 );
@@ -407,8 +403,7 @@ class Program
 
         Room shallowPit = new Room("R003",
                                 "Shallow Pit",
-                                "Roaring water threatens to deafen you here. " +
-                                "You can see vines and roots snaking down into this pit, just barely out of reach."
+                                "Roaring water threatens to deafen you here.\nYou can see vines and roots snaking down into this pit, just barely out of reach."
                                 );
 
 
@@ -423,6 +418,11 @@ class Program
         Weapon hammer1 = new Hammer();
         clayPits.AddItem(hammer1);
 
+        HealingFixture clayPool = new HealingFixture("clay pool", "This murky water is freezing, but there is something undeniably inviting about it.\nYou sense that you can USE this.");
+        clayPool.UseText = "You submerge your hands into the water... and you see the cuts and cracks in your form repairing. You quickly splash this water on the rest of your body.";
+        clayPool.EffectText = "All of your pain has completely vanished!";
+        clayPits.AddItem(clayPool);
+
         player.SpawnRoom = clayPits;
         player.IsPlayer = true; // Ensure the Respawn method will work ONLY for the player
 
@@ -432,11 +432,12 @@ class Program
         nemesis1.CurrentRoom = coldTunnel;
         coldTunnel.AddPerson(nemesis1); // Add to the People list in coldTunnel
         nemesis1.Description = "It's... you? But the proportions are all grotesquely deformed. The mouth doesn't open, and 'your' face is uneven. ";
+        nemesis1.IsPlayer = false;
 
         nemesis2.CurrentRoom = shallowPit;
         shallowPit.AddPerson(nemesis2); // Add to the People list in shallowPit
         nemesis2.Description = "It's... you? But the proportions are all grotesquely deformed. The mouth doesn't open, and 'your' face is uneven. ";
-
+        nemesis2.IsPlayer = false;
 
         // Prompt the player to move around
         Console.WriteLine("It takes you a few moments to finish purging the mud from your belly.");
