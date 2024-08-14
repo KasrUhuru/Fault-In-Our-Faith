@@ -50,6 +50,23 @@ namespace Antikythera
                     target = string.Join(' ', words.Skip(1));
                     Program.player.Attack(target);
                     break;
+                case "cast":
+                    if (words.Length < 2)
+                    {
+                        Console.WriteLine("Cast what? Ensure you type the full name as you see it.");
+                        break;
+                    }
+                    if (words.Length == 2)
+                    {
+                        Program.player.CastSpell(words[1]); // Implicit 
+                        break;
+                    }
+                    if (words.Length >= 3)
+                    {
+                        target = string.Join(' ', words.Skip(2));
+                        Program.player.CastSpell(words[1],target);
+                    }
+                    break;
                 case "commands":
                     ListCommands();
                     break;
@@ -163,6 +180,10 @@ namespace Antikythera
             Console.WriteLine("ATTACK: Use your equipped weapon to swing at a target enemy.");
             Console.WriteLine("Syntax: attack <target>");
             Console.WriteLine();
+            Console.WriteLine("CAST: Activate a spell from your SPELLS list. ");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Syntax: attack <target>");
             Console.WriteLine("DISCARD: Toss away an item from your inventory. Warning: this destroys the object and it doesn't come back!");
             Console.WriteLine("Syntax: discard <item>");
             Console.WriteLine();

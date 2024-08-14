@@ -13,6 +13,7 @@ namespace Antikythera
         public string Species { get; set; }
         public bool IsAlive { get; set; } = true;
         public bool IsPlayer { get; set; } = false;
+        string @class { get; set; } = null;
         public string Description { get; set; }
         public Room CurrentRoom { get; set; }
         public Room SpawnRoom { get; set; }
@@ -92,6 +93,8 @@ namespace Antikythera
         public Weapon EquippedWeapon { get; set; } = new Unarmed();
 
         public List<Item> Inventory { get; set; } = new List<Item>();
+        public List<Spell> SpellList { get; set; } = new List<Spell>();
+        public Character Target { get; set; } = new Character();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Character"/> class.
@@ -100,7 +103,7 @@ namespace Antikythera
         {
             UpdateHealth();
             UpdateDefense();
-
+            this.@class = null;
             this.Description = $"You see a {Species}.";
             this.IsPlayer = false;
             this.EquippedWeapon = new Unarmed(); // Create character without any weapons equipped
@@ -169,7 +172,7 @@ namespace Antikythera
             }
 
         }
-        public async Task AttackPlayerAsync(Character attacker, Character player)
+        public async Task AttackPlayerAsync(Character attacker, Character player) // Automated NPC logic for attacking the player 
         {
             // Wait for 5 seconds before the first attack
             await Task.Delay(5000);
@@ -182,6 +185,40 @@ namespace Antikythera
                 // Wait for 3 seconds before attacking again
                 await Task.Delay(3000);
             }
+        }
+        public void CastSpell(string spellName) // Cast a spell with implicit target
+        {
+            Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
+
+            if (@class != "brujadha")
+            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're not a spellcaster!"); }
+
+            else
+            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're a spellcaster but this feature is not yet implemented!"); }
+        }
+        public void CastSpell(string spellName, string target) // Cast a spell while designating an explicit target
+        {
+            Character Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
+
+            if (spell != null) { Console.WriteLine(); }
+            
+            if (target == "me")
+            { this.Target = this; }
+
+
+            if (Target == null)
+            {
+                Console.WriteLine($"You don't see a {target} here!");
+                return;
+            }
+
+            if (@class != "brujadha")
+            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
+
+            else
+            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
         }
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
@@ -398,9 +435,9 @@ namespace Antikythera
             }
 
         }
-        public void ExamineMine(string target)
+        public void ExamineMine(string itemName) // Display the description of an Item in your Inventory
         {
-            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+            Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
             if (item == null)
             {
@@ -604,7 +641,7 @@ namespace Antikythera
         public Fannaan() : base()
         {
             // Additional initialization for Fannaan class
-            string @class = "Fannaan";
+            string @class = "fannaan";
         }
 
         public Fannaan(Character target)
@@ -620,7 +657,7 @@ namespace Antikythera
         {
             Fannaan NPC = new Fannaan();
             NPC.Name = name;
-            NPC.Species = "Human";
+            NPC.Species = "human";
         }
     }
 
@@ -629,7 +666,7 @@ namespace Antikythera
         public Brujadha() : base()
         {
             // Additional initialization for Brujadha class
-            string @class = "Brujadha";
+            string @class = "brujadha";
         }
 
         public Brujadha(Character target)
@@ -646,8 +683,48 @@ namespace Antikythera
         {
             Brujadha NPC = new Brujadha();
             NPC.Name = name;
-            NPC.Species = "Human";
+            NPC.Species = "human";
+        }
+        // Add classes here
+
+
+
+        public class Spell
+        {
+            // Magical effect generated from a spellcaster's will and incantation
+            // Some cost MP, but basic weak spells don't - ensure they are balanced with weapon attacks
+            public string Name { get; set; }
+            public string Chant { get; set; }
+            public string Description { get; set; }
+            public double CastTime { get; set; }
+            public int CastCost { get; set; }
+            public bool IsMelee { get; set; } = true;
+            public string DamageType { get; set; }
+            public int Damage { get; set; }
+
+            // Name: Ice Lash
+            // Chant: "ura"
+            // Description: A sliver of frozen liquid made from ambient moisture that breaks after a swing, regardless of hit or miss
+            // Cast Time: Casting and attacking are the same action
+            // Cast Cost: 0
+            // Range: Melee
+            // Damage Types: Cold, Cut 
+            // Damage: Equal to WILL + 1-4
+
+            // Name: Concuss
+            // Chant: "asa"
+            // Description: Generate a brief explosion from your fingertips at a target
+            // Cast Time: Casting and attack are the same action
+            // Cast Cost: 0
+            // Range: Melee
+            // Damage Types: Fire, Blunt
+            // Damage: Equal to WILL + 1-4
+
+            public Spell()
+            {
+                // Construct a spell to add to the Character.SpellList
+            }
         }
     }
-
+    // Namespace DMZ
 }
