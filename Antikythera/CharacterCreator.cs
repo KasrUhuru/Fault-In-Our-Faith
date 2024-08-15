@@ -76,7 +76,7 @@ namespace Antikythera
 
 
         // Set base defense
-        private int _baseDefense = 8;
+        private int _baseDefense = 10;
 
         // Private backing field for the Defense property
         private int _defense;
@@ -248,6 +248,9 @@ namespace Antikythera
         {
             Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
 
+            if (spell != null)
+            { Console.WriteLine($"You don't know {spellName}! Try your SPELLS list to see what you can cast."); return; }    
+
             if (@class != "brujadha")
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're not a spellcaster!"); }
 
@@ -262,21 +265,13 @@ namespace Antikythera
 
             if (spell != null) { Console.WriteLine(); }
             
-            if (target == "me")
-            { this.Target = this; }
+            if (target == "me") { this.Target = this; }
 
+            if (Target == null) { Console.WriteLine($"You don't see a {target} here!"); return;}
 
-            if (Target == null)
-            {
-                Console.WriteLine($"You don't see a {target} here!");
-                return;
-            }
+            if (@class != "brujadha") { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
 
-            if (@class != "brujadha")
-            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
-
-            else
-            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
+            else { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
         }
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
