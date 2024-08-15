@@ -244,9 +244,7 @@ namespace Antikythera
             Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
 
             if (spell != null)
-            {
-                Console.WriteLine($"You don't know {spellName}! Try your SPELLS list to see what you can cast.");
-            }    
+            { Console.WriteLine($"You don't know {spellName}! Try your SPELLS list to see what you can cast."); return; }    
 
             if (@class != "brujadha")
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're not a spellcaster!"); }
