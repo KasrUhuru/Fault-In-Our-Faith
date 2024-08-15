@@ -150,8 +150,9 @@ namespace Antikythera
 
             if (AttackRoll >= Target.Defense)
             {
-                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense} (Defense)");
                 Console.WriteLine("Hit!");
+                Console.WriteLine();
                 int _swing = EquippedWeapon.RollDamage();
                 int _damage = POW + _swing - Target.DamageResist;
 
@@ -165,7 +166,8 @@ namespace Antikythera
             }
             else
             {
-                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine();
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense} (Defense)");
                 Console.WriteLine("Miss!");
             }
 
@@ -203,8 +205,9 @@ namespace Antikythera
 
             if (AttackRoll >= Target.Defense)
             {
-                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense} (Defense)");
                 Console.WriteLine("Hit!");
+                Console.WriteLine();
                 int _swing = EquippedWeapon.RollDamage();
                 int _damage = POW + _swing - Target.DamageResist;
 
@@ -218,7 +221,8 @@ namespace Antikythera
             }
             else
             {
-                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine();
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense} (Defense)");
                 Console.WriteLine("Miss!");
             }
 
