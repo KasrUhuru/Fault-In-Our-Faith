@@ -155,14 +155,14 @@ namespace Antikythera
                     }
                     if (words[1] == "my")
                     {
-                        target = string.Join(' ', words.Skip(2));
-                        Program.player.UseMine(target);
+                        target = string.Join(' ', words.Skip(2)); Program.player.UseMine(target);
                     }
-                    else
-                    {
-                        target = string.Join(' ', words.Skip(1));
-                        Program.player.UseRoom(target);
-                    }
+                    else { target = string.Join(' ', words.Skip(1)); Program.player.UseRoom(target); }
+                    break;
+                case "target":
+                    if (words.Length == 1) { Program.player.DisplayTarget(); }
+                    if (words[1] == "me" ) { Program.player.SetTarget(Program.player.Name); }
+
                     break;
                 default:
                     Console.WriteLine("I didn't understand that. Type COMMANDS for a list of possible commands you can try.");
@@ -181,9 +181,9 @@ namespace Antikythera
             Console.WriteLine("Syntax: attack <target>");
             Console.WriteLine();
             Console.WriteLine("CAST: Activate a spell from your SPELLS list. ");
+            Console.WriteLine("Syntax: cast <spell>, only if TARGET is assigned");
+            Console.WriteLine("Syntax: cast <spell> <target>, assigns a TARGET before casting");
             Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine("Syntax: attack <target>");
             Console.WriteLine("DISCARD: Toss away an item from your inventory. Warning: this destroys the object and it doesn't come back!");
             Console.WriteLine("Syntax: discard <item>");
             Console.WriteLine();
@@ -210,6 +210,11 @@ namespace Antikythera
             Console.WriteLine();
             Console.WriteLine("STATUS: List all information about your character.");
             Console.WriteLine("Syntax: status");
+            Console.WriteLine();
+            Console.WriteLine("TARGET: Check or assign a target");
+            Console.WriteLine("Syntax: target, displays your current default target");
+            Console.WriteLine("Syntax: target <target>, can be someone or something");
+            Console.WriteLine("Syntax: target me, for better and for worse this works");
             Console.WriteLine();
             Console.WriteLine("USE: Activate an item in the room or your inventory.");
             Console.WriteLine("Syntax: use my <item> for inventory, OR use <item> for room");

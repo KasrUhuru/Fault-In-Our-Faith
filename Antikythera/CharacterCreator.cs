@@ -20,7 +20,8 @@ namespace Antikythera
         public Weapon EquippedWeapon { get; set; } = new Unarmed();
         public List<Item> Inventory { get; set; } = new List<Item>();
         public List<Spell> SpellList { get; set; } = new List<Spell>();
-        public Character Target { get; set; } = new Character();
+        public Character Target { get; set; }
+        Random r = new Random();
 
         /// <summary>
         /// Attributes
@@ -132,6 +133,50 @@ namespace Antikythera
             Defense = _baseDefense + DEX;
         }
 
+        public void Attack() // Shorthand method to attack a target
+        {
+            if  (Target == null)
+            {
+                Console.WriteLine("You aren't targeting anything!");
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine($"{Name} swings at {Target.Name} with their {EquippedWeapon.Name}...");
+            Console.WriteLine();
+            int _bonus = r.Next(1, 20);
+            int AttackRoll = this.STR + _bonus;
+
+            if (AttackRoll >= Target.Defense)
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Hit!");
+                int _swing = EquippedWeapon.RollDamage();
+                int _damage = POW + _swing - Target.DamageResist;
+
+                Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {Target.DamageResist} (Damage Resistance)");
+                Console.WriteLine();
+
+                if (_damage < 0) { _damage = 1; }
+                Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {Target.Name}!");
+
+                Target.Health -= _damage;
+            }
+            else
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Miss!");
+            }
+
+            if (Target.Health <= 0)
+            {
+                Target.Health = 0;
+                Target.IsAlive = false;
+                Target.Die();
+                if (Target.IsPlayer) { Target.Respawn(); }
+            }
+        }
         public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
         {
             // Convert from string user input to Character object reference
@@ -147,30 +192,43 @@ namespace Antikythera
                 return;
             }
 
+            this.Target = target;
+
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}!");
+            Console.WriteLine($"{Name} swings at {Target.Name} with their {EquippedWeapon.Name}...");
             Console.WriteLine();
-            int _swing = EquippedWeapon.RollDamage();
-            int _damage = POW + _swing - target.DamageResist;
+            int _bonus = r.Next(1, 20);
+            int AttackRoll = this.STR + _bonus;
 
-            Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {target.DamageResist} (Damage Resistance)");
-            Console.WriteLine();
-
-            if (_damage < 0) { _damage = 1; }
-            Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {target.Name}!");
-
-            target.Health -= _damage;
-
-            if (target.Health <= 0)
+            if (AttackRoll >= Target.Defense)
             {
-                target.Health = 0;
-                target.IsAlive = false;
-                target.Die();
-                if (target.IsPlayer) { target.Respawn(); }
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Hit!");
+                int _swing = EquippedWeapon.RollDamage();
+                int _damage = POW + _swing - Target.DamageResist;
 
+                Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {Target.DamageResist} (Damage Resistance)");
+                Console.WriteLine();
+
+                if (_damage < 0) { _damage = 1; }
+                Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {Target.Name}!");
+
+                Target.Health -= _damage;
+            }
+            else
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Miss!");
             }
 
+            if (Target.Health <= 0)
+            {
+                Target.Health = 0;
+                Target.IsAlive = false;
+                Target.Die();
+                if (Target.IsPlayer) { Target.Respawn(); }
+            }
         }
         public async Task AttackPlayerAsync(Character attacker, Character player) // Automated NPC logic for attacking the player 
         {
@@ -220,7 +278,6 @@ namespace Antikythera
             else
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
         }
-
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
             Console.WriteLine($"{Name} has died!");
@@ -343,6 +400,18 @@ namespace Antikythera
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
+        }
+        public void DisplayTarget() // Check what you're targeting
+        {
+            if (Target == null)
+            {
+                Console.WriteLine("You aren't currently targeting anything or anyone.\nYou can use target ME to target yourself.\nYou can also use target <target>.");
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine($"Currently targeting: {Target.Name}.");
         }
         public void DropItem(string itemName) // Removes from inventory and adds to the room
         {
@@ -593,6 +662,18 @@ namespace Antikythera
             CurrentRoom.AddPerson(Program.player);
             IsAlive = true;
         } 
+        public void SetTarget(string target) // Character focuses on something
+        {
+            Character _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            if (_target == null)
+            {
+                Console.WriteLine($"You don't see any {target} here.");
+                return;
+            }
+
+            Console.WriteLine($"You are now targeting any {_target.Name} that you see.");
+        }
         public void UseRoom(string itemName) // Character activates an item in the room
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
