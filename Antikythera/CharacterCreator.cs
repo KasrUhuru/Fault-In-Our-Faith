@@ -20,7 +20,8 @@ namespace Antikythera
         public Weapon EquippedWeapon { get; set; } = new Unarmed();
         public List<Item> Inventory { get; set; } = new List<Item>();
         public List<Spell> SpellList { get; set; } = new List<Spell>();
-        public Character Target { get; set; } = new Character();
+        public Character Target { get; set; }
+        Random r = new Random();
 
         /// <summary>
         /// Attributes
@@ -75,7 +76,7 @@ namespace Antikythera
 
 
         // Set base defense
-        private int _baseDefense = 8;
+        private int _baseDefense = 10;
 
         // Private backing field for the Defense property
         private int _defense;
@@ -132,6 +133,44 @@ namespace Antikythera
             Defense = _baseDefense + DEX;
         }
 
+        public void Attack() // Shorthand method to attack a target
+        {
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine($"{Name} swings at {Target.Name} with their {EquippedWeapon.Name}...");
+            Console.WriteLine();
+            int _bonus = r.Next(1, 20);
+            int AttackRoll = this.STR + _bonus;
+
+            if (AttackRoll >= Target.Defense)
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Hit!");
+                int _swing = EquippedWeapon.RollDamage();
+                int _damage = POW + _swing - Target.DamageResist;
+
+                Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {Target.DamageResist} (Damage Resistance)");
+                Console.WriteLine();
+
+                if (_damage < 0) { _damage = 1; }
+                Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {Target.Name}!");
+
+                Target.Health -= _damage;
+            }
+            else
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Miss!");
+            }
+
+            if (Target.Health <= 0)
+            {
+                Target.Health = 0;
+                Target.IsAlive = false;
+                Target.Die();
+                if (Target.IsPlayer) { Target.Respawn(); }
+            }
+        }
         public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
         {
             // Convert from string user input to Character object reference
@@ -147,28 +186,42 @@ namespace Antikythera
                 return;
             }
 
+            this.Target = target;
+
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine($"{Name} swings at {target.Name} with their {EquippedWeapon.Name}!");
+            Console.WriteLine($"{Name} swings at {Target.Name} with their {EquippedWeapon.Name}...");
             Console.WriteLine();
-            int _swing = EquippedWeapon.RollDamage();
-            int _damage = POW + _swing - target.DamageResist;
+            int _bonus = r.Next(1, 20);
+            int AttackRoll = this.STR + _bonus;
 
-            Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {target.DamageResist} (Damage Resistance)");
-            Console.WriteLine();
-
-            if (_damage < 0) { _damage = 1; }
-            Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {target.Name}!");
-
-            target.Health -= _damage;
-
-            if (target.Health <= 0)
+            if (AttackRoll >= Target.Defense)
             {
-                target.Health = 0;
-                target.IsAlive = false;
-                target.Die();
-                if (target.IsPlayer) { target.Respawn(); }
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Hit!");
+                int _swing = EquippedWeapon.RollDamage();
+                int _damage = POW + _swing - Target.DamageResist;
 
+                Console.WriteLine($"{POW} (Character POWER) + {_swing} (Damage Roll) - {Target.DamageResist} (Damage Resistance)");
+                Console.WriteLine();
+
+                if (_damage < 0) { _damage = 1; }
+                Console.WriteLine($"{Name} deals {_damage} {EquippedWeapon.DamageType} damage to {Target.Name}!");
+
+                Target.Health -= _damage;
+            }
+            else
+            {
+                Console.WriteLine($"Attack Roll: {STR} (STR) + {_bonus} (Dice) = {AttackRoll} VS {Target.Defense}");
+                Console.WriteLine("Miss!");
+            }
+
+            if (Target.Health <= 0)
+            {
+                Target.Health = 0;
+                Target.IsAlive = false;
+                Target.Die();
+                if (Target.IsPlayer) { Target.Respawn(); }
             }
 
         }
@@ -190,6 +243,11 @@ namespace Antikythera
         {
             Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
 
+            if (spell != null)
+            {
+                Console.WriteLine($"You don't know {spellName}! Try your SPELLS list to see what you can cast.");
+            }    
+
             if (@class != "brujadha")
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're not a spellcaster!"); }
 
@@ -204,21 +262,13 @@ namespace Antikythera
 
             if (spell != null) { Console.WriteLine(); }
             
-            if (target == "me")
-            { this.Target = this; }
+            if (target == "me") { this.Target = this; }
 
+            if (Target == null) { Console.WriteLine($"You don't see a {target} here!"); return;}
 
-            if (Target == null)
-            {
-                Console.WriteLine($"You don't see a {target} here!");
-                return;
-            }
+            if (@class != "brujadha") { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
 
-            if (@class != "brujadha")
-            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
-
-            else
-            { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
+            else { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
         }
 
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
