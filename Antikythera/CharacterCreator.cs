@@ -181,12 +181,16 @@ namespace Antikythera
         }
         public void Attack(string targetName) // Use equipped weapon to attack an enemy Character
         {
-            // Convert from string user input to Character object reference
-            Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
-
             // Stop dead character from fighting back
             if (!IsAlive) { return; }
 
+            // Convert from string user input to Character object reference
+            Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
+
+            if (target = null)
+            {
+                Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase));
+            }
             // Stop non-adjacent characters from attacking each other
             if (target == null)
             {
@@ -265,9 +269,13 @@ namespace Antikythera
         {
             Character Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
 
+            if (target = null)
+            { Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase)); }
+
             Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
 
-            if (spell != null) { Console.WriteLine(); }
+            if (spell == null) 
+            { SpellList.FirstOrDefault(p => p.Name.Contains(spellName, StringComparison.OrdinalIgnoreCase)); }
             
             if (target == "me") { this.Target = this; }
 
@@ -340,6 +348,8 @@ namespace Antikythera
         public void DiscardItem(string itemName) // Removes from inventory and it doesn't exist anymore
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+
+            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null)
             {
@@ -416,6 +426,8 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
+            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+
             if (item == null)
             {
                 Console.WriteLine($"You don't have that in your possession.");
@@ -460,6 +472,8 @@ namespace Antikythera
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
+            if (item == null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+
             if (item == null)
             {
                 Console.WriteLine($"You don't see any {itemName} here.");
@@ -474,16 +488,20 @@ namespace Antikythera
 
             // Remove from the room and create in your inventory
             CurrentRoom.RemoveItem(item);
-            Console.WriteLine($"You pick up the {itemName}.");
 
             // Add the item to your inventory
             Inventory.Add(item);
+            Console.WriteLine($"You pick up the {itemName}.");
         }
         public void ExamineRoom(string target) // Display the description of an Item or Character
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
 
+            if (item == null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
+
             Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+
+            if (character == null) { Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null && character == null)
             {
@@ -508,7 +526,9 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null)
+            if (item == null) {Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
+
+                if (item == null)
             {
                 Console.WriteLine($"You don't have that in your possession.");
                 return;
@@ -664,6 +684,7 @@ namespace Antikythera
         public void SetTarget(string target) // Character focuses on something
         {
             Character _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+            if (_target != null) { Character _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase));}
 
             if (_target == null)
             {
@@ -676,6 +697,7 @@ namespace Antikythera
         public void UseRoom(string itemName) // Character activates an item in the room
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+            if (item != null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
 
             if (item == null)
             {
