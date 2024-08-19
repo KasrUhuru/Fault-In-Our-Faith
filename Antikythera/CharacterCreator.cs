@@ -716,6 +716,8 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
+            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+
             if (item == null)
             {
                 Console.WriteLine($"You don't have that in your possession.");
