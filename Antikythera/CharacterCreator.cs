@@ -20,7 +20,9 @@ namespace Antikythera
         public Weapon EquippedWeapon { get; set; } = new Unarmed();
         public List<Item> Inventory { get; set; } = new List<Item>();
         public List<Spell> SpellList { get; set; } = new List<Spell>();
+        public Spell ActiveSpell { get; set; }
         public Character Target { get; set; }
+
         Random r = new Random();
 
         /// <summary>
@@ -95,8 +97,6 @@ namespace Antikythera
             set { _defense = value; }
         }
 
-        
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Character"/> class.
         /// </summary>
@@ -122,7 +122,6 @@ namespace Antikythera
         {
             MaxHealth = _baseHealth + CON;
             Health = _baseHealth + CON;
-
         }
 
         /// <summary>
@@ -185,20 +184,16 @@ namespace Antikythera
             if (!IsAlive) { return; }
 
             // Convert from string user input to Character object reference
-            Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
+            Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
 
-            if (target = null)
-            {
-                Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase));
-            }
+            if (Target == null)
+            { Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase)); }
             // Stop non-adjacent characters from attacking each other
-            if (target == null)
+            if (Target == null)
             {
                 Console.WriteLine($"You don't see a {targetName} here!");
                 return;
             }
-
-            this.Target = target;
 
             Console.WriteLine();
             Console.WriteLine();
@@ -265,25 +260,26 @@ namespace Antikythera
             else
             { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands! You're a spellcaster but this feature is not yet implemented!"); }
         }
-        public void CastSpell(string spellName, string target) // Cast a spell while designating an explicit target
+        public void CastSpell(string spellName, string targetName) // Cast a spell while designating an explicit target
         {
-            Character Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
+            Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
 
-            if (target = null)
-            { Character target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase)); }
+            if (Target == null)
+            { Target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase)); }
+
 
             Spell spell = SpellList.FirstOrDefault(p => p.Name.Equals(spellName, StringComparison.OrdinalIgnoreCase));
 
             if (spell == null) 
             { SpellList.FirstOrDefault(p => p.Name.Contains(spellName, StringComparison.OrdinalIgnoreCase)); }
             
-            if (target == "me") { this.Target = this; }
+            if (targetName == "me") { this.Target = this; }
 
-            if (Target == null) { Console.WriteLine($"You don't see a {target} here!"); return;}
+            if (Target == null) { Console.WriteLine($"You don't see a {targetName} here!"); return;}
 
-            if (@class != "brujadha") { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're not a spellcaster!"); }
+            if (@class != "brujadha") { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {Target.Name}! You're not a spellcaster!"); }
 
-            else { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {target}! You're a spellcaster but this feature is not yet implemented!"); }
+            else { Console.WriteLine($"You cast {spellName} - a little toot squeaks out of your hands at {Target.Name}! You're a spellcaster but this feature is not yet implemented!"); }
         }
         public void Die() // Convert a Character into a Corpse object and drop equipped weapon
         {
@@ -349,7 +345,7 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+            if (item == null) { item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null)
             {
@@ -414,7 +410,7 @@ namespace Antikythera
         {
             if (Target == null)
             {
-                Console.WriteLine("You aren't currently targeting anything or anyone.\nYou can use target ME to target yourself.\nYou can also use target <target>.");
+                Console.WriteLine("You aren't currently targeting anything or anyone.\nYou can use TARGET ME to target yourself.\nYou can also use TARGET <target>.");
                 return;
             }
 
@@ -426,7 +422,7 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+            if (item == null) { item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null)
             {
@@ -472,7 +468,7 @@ namespace Antikythera
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+            if (item == null) { item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null)
             {
@@ -497,11 +493,11 @@ namespace Antikythera
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
+            if (item == null) { item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
 
             Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
 
-            if (character == null) { Character character = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
+            if (character == null) { character = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null && character == null)
             {
@@ -526,7 +522,7 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) {Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
+            if (item == null) {item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
 
                 if (item == null)
             {
@@ -684,7 +680,7 @@ namespace Antikythera
         public void SetTarget(string target) // Character focuses on something
         {
             Character _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Equals(target, StringComparison.OrdinalIgnoreCase));
-            if (_target != null) { Character _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase));}
+            if (_target != null) { _target = CurrentRoom.People.FirstOrDefault(p => p.Name.Contains(target, StringComparison.OrdinalIgnoreCase));}
 
             if (_target == null)
             {
@@ -697,7 +693,7 @@ namespace Antikythera
         public void UseRoom(string itemName) // Character activates an item in the room
         {
             Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
-            if (item != null) { Item item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
+            if (item != null) { item = CurrentRoom.Objects.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));}
 
             if (item == null)
             {
@@ -716,7 +712,7 @@ namespace Antikythera
         {
             Item item = Inventory.FirstOrDefault(p => p.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
 
-            if (item == null) { Item item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
+            if (item == null) { item = Inventory.FirstOrDefault(p => p.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase)); }
 
             if (item == null)
             {
@@ -741,7 +737,8 @@ namespace Antikythera
     }
 
     // Example of a derived class
-    public class Fannaan : Character
+    
+        public class Fannaan : Character
     {
         public Fannaan() : base()
         {

@@ -54,8 +54,6 @@ class Program
             FastStart();
         }
 
-
-
     }
 
     static void FastStart()
@@ -110,10 +108,10 @@ class Program
         Console.ReadLine();
         Console.WriteLine("They had vision. Unity. Influence.");
         Console.WriteLine();
-        Console.WriteLine("They amassed the wealth and resources of generations to build a grand pyramid.");
+        Console.WriteLine("They amassed the wealth and resources of generations to build a grand pyramid, and a city to hold it.");
         Console.ReadLine();
         Console.Clear();
-        Console.WriteLine("They intended to ascend to godhood together.");
+        Console.WriteLine("They intended to ascend to godhood together, and their devoted would be their angels on earth.");
         Console.ReadLine();
         Console.Clear();
         Console.WriteLine("It isn't known what happened at the apex of their ambitions.");
@@ -137,7 +135,7 @@ class Program
         Console.Clear();
         Console.WriteLine("What is clear is how the monarchs and their magicians were never again seen since.");
         Console.WriteLine();
-        Console.WriteLine("The pyramid had erupted into a rubbled husk of its former glory.");
+        Console.WriteLine("The pyramid city had erupted into a rubbled husk of its former glory.");
         Console.WriteLine();
         Console.WriteLine("But their influence has been felt for centuries. The consequences carried far into the hearts of many.");
         Console.ReadLine();
@@ -173,6 +171,7 @@ class Program
         // Initialize character creation
         StoryStart();
     }
+
     static void StoryStart()
     {
         Console.WriteLine("It's dark... peaceful. A distant rumble can be heard in the back of your mind.");
